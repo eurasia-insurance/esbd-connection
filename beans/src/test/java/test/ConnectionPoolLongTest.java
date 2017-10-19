@@ -14,8 +14,7 @@ import tech.lapsa.esbd.connection.ConnectionPool;
 public class ConnectionPoolLongTest
 {
 
-    @Inject
-    private Logger logger;
+    private final Logger logger = Logger.getLogger(this.getClass().getPackage().getName());
 
     @Inject
     private ConnectionPool pool;
