@@ -11,9 +11,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import tech.lapsa.esbd.connection.ConnectionException;
-import tech.lapsa.esbd.jaxws.IICWebService;
-import tech.lapsa.esbd.jaxws.IICWebServiceSoap;
-import tech.lapsa.esbd.jaxws.User;
+import tech.lapsa.esbd.jaxws.wsimport.IICWebService;
+import tech.lapsa.esbd.jaxws.wsimport.IICWebServiceSoap;
+import tech.lapsa.esbd.jaxws.wsimport.User;
 
 public class SoapSession {
     private static final int PRIME = 23;
