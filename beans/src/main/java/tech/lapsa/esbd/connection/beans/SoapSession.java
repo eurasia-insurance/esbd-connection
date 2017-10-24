@@ -3,7 +3,6 @@ package tech.lapsa.esbd.connection.beans;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.logging.Logger;
 
 import javax.xml.ws.BindingProvider;
 
@@ -14,6 +13,7 @@ import tech.lapsa.esbd.connection.ConnectionException;
 import tech.lapsa.esbd.jaxws.wsimport.IICWebService;
 import tech.lapsa.esbd.jaxws.wsimport.IICWebServiceSoap;
 import tech.lapsa.esbd.jaxws.wsimport.User;
+import tech.lapsa.java.commons.logging.MyLogger;
 
 public class SoapSession {
     private static final int PRIME = 23;
@@ -22,7 +22,7 @@ public class SoapSession {
     private final URL wsdlLocation;
     private final String userName;
     private final String password;
-    private final Logger logger;
+    private final MyLogger logger;
     private final int connectTimeoutMilis;
     private final int requestTimeoutMilis;
     private final int reCheckTimeoutMilis;
@@ -56,7 +56,7 @@ public class SoapSession {
 	return String.format("%1$s('%2$s')", this.getClass().getSimpleName(), wsdlLocation.toString());
     }
 
-    public SoapSession(URL wsdlLocation, String userName, String password, Logger logger, int connectTimeoutMilis,
+    public SoapSession(URL wsdlLocation, String userName, String password, MyLogger logger, int connectTimeoutMilis,
 	    int requestTimeoutMilis, int reCheckTimeoutMilis) {
 	this.wsdlLocation = wsdlLocation;
 	this.userName = userName;
@@ -146,14 +146,14 @@ public class SoapSession {
 	    return;
 	try {
 	    if (sessionId == null)
-		logger.info(String.format("NEW %1$s for user '%2$s'", this, userName));
+		logger.INFO.log("NEW %1$s for user '%2$s'", this, userName);
 	    else
-		logger.info(String.format("RE-ESTABLISHED %1$s for user '%2$s'", this, userName));
+		logger.INFO.log("RE-ESTABLISHED %1$s for user '%2$s'", this, userName);
 
 	    User user = soap.authenticateUser(userName, password);
 	    sessionId = user.getSessionID();
 	    okChecked();
-	    logger.info(String.format("ESTABLISHED SUCCESSUFUL %1$s aSessionID = '%2$s'", this, sessionId));
+	    logger.INFO.log("ESTABLISHED SUCCESSUFUL %1$s aSessionID = '%2$s'", this, sessionId);
 	} catch (Exception e) {
 	    notChecked();
 	    String message = String.format("FAILED TO ESTABLISH %1$s error message = '%2$s'", this, e.getMessage());

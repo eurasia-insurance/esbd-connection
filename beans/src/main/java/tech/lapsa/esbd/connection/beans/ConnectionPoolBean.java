@@ -6,8 +6,6 @@ import java.util.Deque;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -113,6 +111,7 @@ import tech.lapsa.esbd.jaxws.wsimport.TF;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL;
 import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
+import tech.lapsa.java.commons.logging.MyLogger;
 
 @Singleton
 public class ConnectionPoolBean implements ConnectionPool {
@@ -131,7 +130,9 @@ public class ConnectionPoolBean implements ConnectionPool {
     private int requestTimeoutMilis;
     private int reCheckTimeoutMilis;
 
-    private final Logger logger = Logger.getLogger(ConnectionPool.class.getPackage().getName());
+    private final MyLogger logger = MyLogger.newBuilder() //
+	    .withNameOf(ConnectionPool.class) //
+	    .build();
 
     @Resource(mappedName = JNDI_ESBD_POOL_CONFIGURATION_PROPERTIES)
     private Properties config;
@@ -157,8 +158,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 			    connectTimeoutMilis, requestTimeoutMilis, reCheckTimeoutMilis);
 		    activeSessions.add(ss);
 		} catch (MalformedURLException e) {
-		    logger.log(Level.SEVERE,
-			    String.format("Failed to initialize ESBD connection with url '%1$s'", urlstr), e);
+		    logger.SEVERE.log(e, "Failed to initialize ESBD connection with url '%1$s'", urlstr);
 		}
 	    }
 
@@ -176,15 +176,15 @@ public class ConnectionPoolBean implements ConnectionPool {
 	    // ему ping
 	    SoapSession ss = deferredSessions.removeFirst();
 	    try {
-		logger.fine(String.format("TRYING TO ENABLE %1$s", ss));
+		logger.FINE.log("TRYING TO ENABLE %1$s", ss);
 		ss.ping();
 		// если ping прошел, то поставить соединение в голову стека
 		// "хороших" соединений
 		activeSessions.addFirst(ss);
-		logger.info(String.format("IS ALIVE %1$s", ss));
-		logger.info(String.format("ENABLED %1$s", ss));
+		logger.INFO.log("IS ALIVE %1$s", ss);
+		logger.INFO.log("ENABLED %1$s", ss);
 	    } catch (ConnectionException ignored) {
-		logger.fine(String.format("FAIL TO ENABLE %1$s", ss));
+		logger.FINE.log("FAIL TO ENABLE %1$s", ss);
 		// если ping не прошел вернуть в стек "плохих" соединений
 		deferredSessions.addLast(ss);
 	    }
@@ -201,24 +201,23 @@ public class ConnectionPoolBean implements ConnectionPool {
 		    activeSessions.addLast(ss);
 		    ConnectionImpl con = new ConnectionImpl(ss.getSoap(), ss.getWsdlLocation(),
 			    ss.getSessionId());
-		    logger.finer(String.format("CONNECTION TAKEN %1$s", con));
+		    logger.FINER.log("CONNECTION TAKEN %1$s", con);
 		    return con;
 		} catch (ConnectionException e) {
-		    logger.log(Level.WARNING,
-			    String.format("PING FAILED %1$s. Error message is '%2$s'", ss, e.getMessage()));
-		    logger.log(Level.WARNING, String.format("DISABLED %1$s", ss));
+		    logger.WARNING.log("PING FAILED %1$s. Error message is '%2$s'", ss, e.getMessage());
+		    logger.WARNING.log("DISABLED %1$s", ss);
 		    ss.reset();
 		    deferredSessions.add(ss);
 		}
 	    }
 	} catch (NoSuchElementException e) {
-	    logger.severe("No ESBD connection available due to previous errors");
+	    logger.SEVERE.log("No ESBD connection available due to previous errors");
 	    throw new ConnectionException("No ESBD connection available");
 	}
     }
 
     private void connectionRelease(ConnectionImpl con) {
-	logger.finer(String.format("CONNECTION RELEASED %1$s", con));
+	logger.FINER.log("CONNECTION RELEASED %1$s", con);
     }
 
     private class ConnectionImpl implements Connection {
