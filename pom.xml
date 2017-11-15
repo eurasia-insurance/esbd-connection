@@ -25,7 +25,7 @@
 		<java-commons.version>1.1-SNAPSHOT</java-commons.version>
 		<!-- tech -->
 		<esbd-jaxws-client.version>4.1</esbd-jaxws-client.version>
-		<lapsa-arquillian-test.version>1.0</lapsa-arquillian-test.version>
+		<lapsa-arquillian-test.version>1.1-SNAPSHOT</lapsa-arquillian-test.version>
 		<!-- ASB -->
 		<asb.keystore.path>${env.ASB_PATH}</asb.keystore.path>
 	</properties>
