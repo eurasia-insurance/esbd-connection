@@ -137,8 +137,8 @@ public class ConnectionPoolBean implements ConnectionPool {
     @Resource(mappedName = JNDI_ESBD_POOL_CONFIGURATION_PROPERTIES)
     private Properties config;
 
-    private Deque<SoapSession> activeSessions = new ConcurrentLinkedDeque<>();
-    private Deque<SoapSession> deferredSessions = new ConcurrentLinkedDeque<>();
+    private final Deque<SoapSession> activeSessions = new ConcurrentLinkedDeque<>();
+    private final Deque<SoapSession> deferredSessions = new ConcurrentLinkedDeque<>();
 
     @PostConstruct
     public void init() {
@@ -148,16 +148,16 @@ public class ConnectionPoolBean implements ConnectionPool {
 	requestTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_ESBD_REQUEST_TIMEOUT_MILIS, "5000"));
 	reCheckTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_ESBD_RECHECK_TIMEOUT_MILIS, "2000"));
 
-	for (Object k : config.keySet()) {
-	    String key = (String) k;
+	for (final Object k : config.keySet()) {
+	    final String key = (String) k;
 	    if (key.startsWith(PROPERTY_PREFXIX_WSDL_LOCATION)) {
-		String urlstr = config.getProperty(key);
+		final String urlstr = config.getProperty(key);
 		try {
-		    URL wsdlLocation = new URL(urlstr);
-		    SoapSession ss = new SoapSession(wsdlLocation, esbdUserName, esbdUserPassword, logger,
+		    final URL wsdlLocation = new URL(urlstr);
+		    final SoapSession ss = new SoapSession(wsdlLocation, esbdUserName, esbdUserPassword, logger,
 			    connectTimeoutMilis, requestTimeoutMilis, reCheckTimeoutMilis);
 		    activeSessions.add(ss);
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 		    logger.SEVERE.log(e, "Failed to initialize ESBD connection with url '%1$s'", urlstr);
 		}
 	    }
@@ -167,14 +167,14 @@ public class ConnectionPoolBean implements ConnectionPool {
 
     @Schedule(hour = "*", minute = "*", second = "*/30")
     // пытаться восстановить соединения каждую минуту
-    public void checkDeffered(Timer timer) {
-	int count = deferredSessions.size();
+    public void checkDeffered(final Timer timer) {
+	final int count = deferredSessions.size();
 	// проделать со стеком "плохих" соединений количество итераций
 	// соответствующее размеру этого стека
 	for (int i = 0; i < count; i++) {
 	    // забрать соединение из головы стека "плохих" соединений и сделать
 	    // ему ping
-	    SoapSession ss = deferredSessions.removeFirst();
+	    final SoapSession ss = deferredSessions.removeFirst();
 	    try {
 		logger.FINE.log("TRYING TO ENABLE %1$s", ss);
 		ss.ping();
@@ -183,7 +183,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 		activeSessions.addFirst(ss);
 		logger.INFO.log("IS ALIVE %1$s", ss);
 		logger.INFO.log("ENABLED %1$s", ss);
-	    } catch (ConnectionException ignored) {
+	    } catch (final ConnectionException ignored) {
 		logger.FINE.log("FAIL TO ENABLE %1$s", ss);
 		// если ping не прошел вернуть в стек "плохих" соединений
 		deferredSessions.addLast(ss);
@@ -195,28 +195,28 @@ public class ConnectionPoolBean implements ConnectionPool {
     public Connection getConnection() throws ConnectionException {
 	try {
 	    while (true) {
-		SoapSession ss = activeSessions.removeFirst();
+		final SoapSession ss = activeSessions.removeFirst();
 		try {
 		    ss.ping();
 		    activeSessions.addLast(ss);
-		    ConnectionImpl con = new ConnectionImpl(ss.getSoap(), ss.getWsdlLocation(),
+		    final ConnectionImpl con = new ConnectionImpl(ss.getSoap(), ss.getWsdlLocation(),
 			    ss.getSessionId());
 		    logger.FINER.log("CONNECTION TAKEN %1$s", con);
 		    return con;
-		} catch (ConnectionException e) {
+		} catch (final ConnectionException e) {
 		    logger.WARNING.log("PING FAILED %1$s. Error message is '%2$s'", ss, e.getMessage());
 		    logger.WARNING.log("DISABLED %1$s", ss);
 		    ss.reset();
 		    deferredSessions.add(ss);
 		}
 	    }
-	} catch (NoSuchElementException e) {
+	} catch (final NoSuchElementException e) {
 	    logger.SEVERE.log("No ESBD connection available due to previous errors");
 	    throw new ConnectionException("No ESBD connection available");
 	}
     }
 
-    private void connectionRelease(ConnectionImpl con) {
+    private void connectionRelease(final ConnectionImpl con) {
 	logger.FINER.log("CONNECTION RELEASED %1$s", con);
     }
 
@@ -228,19 +228,19 @@ public class ConnectionPoolBean implements ConnectionPool {
 	private final URL wsdlLocation;
 	private final String aSessionID;
 
-	ConnectionImpl(IICWebServiceSoap soap, URL wsdlLocation, String aSessionID) {
+	ConnectionImpl(final IICWebServiceSoap soap, final URL wsdlLocation, final String aSessionID) {
 	    this.soap = soap;
 	    this.wsdlLocation = wsdlLocation;
 	    this.aSessionID = aSessionID;
 	}
 
 	@Override
-	public int calculateContractPremium(String aXml) {
+	public int calculateContractPremium(final String aXml) {
 	    return soap.calculateContractPremium(aSessionID, aXml);
 	}
 
 	@Override
-	public int calculatePolicyPremium(Policy aPolicy) {
+	public int calculatePolicyPremium(final Policy aPolicy) {
 	    return soap.calculatePolicyPremium(aSessionID, aPolicy);
 	}
 
@@ -250,22 +250,22 @@ public class ConnectionPoolBean implements ConnectionPool {
 	}
 
 	@Override
-	public void deleteNewUserRequest(int aRequestID) {
+	public void deleteNewUserRequest(final int aRequestID) {
 	    soap.deleteNewUserRequest(aSessionID, aRequestID);
 	}
 
 	@Override
-	public void deletePolicy(int aPolicyID) {
+	public void deletePolicy(final int aPolicyID) {
 	    soap.deletePolicy(aSessionID, aPolicyID);
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 	    if (other == null || other.getClass() != getClass())
 		return false;
 	    if (other == this)
 		return true;
-	    ConnectionImpl that = (ConnectionImpl) other;
+	    final ConnectionImpl that = (ConnectionImpl) other;
 	    return new EqualsBuilder()
 		    .append(wsdlLocation, that.wsdlLocation)
 		    .append(aSessionID, that.aSessionID)
@@ -273,730 +273,730 @@ public class ConnectionPoolBean implements ConnectionPool {
 	}
 
 	@Override
-	public EsbdResponse execute(EsbdRequest aRequest) {
+	public EsbdResponse execute(final EsbdRequest aRequest) {
 	    return soap.execute(aSessionID, aRequest);
 	}
 
 	@Override
-	public int getClassId(int aClientId, String aDate, int aTFId) {
+	public int getClassId(final int aClientId, final String aDate, final int aTFId) {
 	    return soap.getClassId(aSessionID, aClientId, aDate, aTFId);
 	}
 
 	@Override
-	public String getClassText(int aClassId) {
+	public String getClassText(final int aClassId) {
 	    return soap.getClassText(aSessionID, aClassId);
 	}
 
 	@Override
-	public Client getClientByID(int aID) {
+	public Client getClientByID(final int aID) {
 	    return soap.getClientByID(aSessionID, aID);
 	}
 
 	@Override
-	public ArrayOfCLIENTPBDETAILS getClientPBDetailsListByID(int aClientID) {
+	public ArrayOfCLIENTPBDETAILS getClientPBDetailsListByID(final int aClientID) {
 	    return soap.getClientPBDetailsListByID(aSessionID, aClientID);
 	}
 
 	@Override
-	public ArrayOfClient getClientsByKeyFields(Client aClient) {
+	public ArrayOfClient getClientsByKeyFields(final Client aClient) {
 	    return soap.getClientsByKeyFields(aSessionID, aClient);
 	}
 
 	@Override
-	public ArrayOfClient getClientsByRNN(String aTPRN) {
+	public ArrayOfClient getClientsByRNN(final String aTPRN) {
 	    return soap.getClientsByRNN(aSessionID, aTPRN);
 	}
 
 	@Override
 	public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByContractDate(
-		String aContractDate) {
+		final String aContractDate) {
 	    return soap.getContractAgricultureByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTAGRICULTURELIST getContractAgricultureById(int aCONTRACTID) {
+	public CONTRACTAGRICULTURELIST getContractAgricultureById(final int aCONTRACTID) {
 	    return soap.getContractAgricultureById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByNumber(final String aContractNumber) {
 	    return soap.getContractAgricultureByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractAgricultureByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfString getContractByAppRescDate(int aInsuranceTypeID, String aApproveDate,
-		String aRescindingDate) {
+	public ArrayOfString getContractByAppRescDate(final int aInsuranceTypeID, final String aApproveDate,
+		final String aRescindingDate) {
 	    return soap.getContractByAppRescDate(aSessionID, aInsuranceTypeID, aApproveDate, aRescindingDate);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByContractDate(final String aContractDate) {
 	    return soap.getContractDsAccidentByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSACCIDENT getContractDsAccidentById(int aCONTRACTID) {
+	public CONTRACTDSACCIDENT getContractDsAccidentById(final int aCONTRACTID) {
 	    return soap.getContractDsAccidentById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByNumber(final String aContractNumber) {
 	    return soap.getContractDsAccidentByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsAccidentByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSAIR getContractDsAirByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSAIR getContractDsAirByContractDate(final String aContractDate) {
 	    return soap.getContractDsAirByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSAIR getContractDsAirById(int aCONTRACTID) {
+	public CONTRACTDSAIR getContractDsAirById(final int aCONTRACTID) {
 	    return soap.getContractDsAirById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSAIR getContractDsAirByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSAIR getContractDsAirByNumber(final String aContractNumber) {
 	    return soap.getContractDsAirByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSAIR getContractDsAirByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSAIR getContractDsAirByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsAirByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByContractDate(final String aContractDate) {
 	    return soap.getContractDsAnnuityByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSANNUITY getContractDsAnnuityById(int aCONTRACTID) {
+	public CONTRACTDSANNUITY getContractDsAnnuityById(final int aCONTRACTID) {
 	    return soap.getContractDsAnnuityById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByNumber(final String aContractNumber) {
 	    return soap.getContractDsAnnuityByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsAnnuityByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSAUTO getContractDsAutoByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSAUTO getContractDsAutoByContractDate(final String aContractDate) {
 	    return soap.getContractDsAutoByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSAUTO getContractDsAutoById(int aCONTRACTID) {
+	public CONTRACTDSAUTO getContractDsAutoById(final int aCONTRACTID) {
 	    return soap.getContractDsAutoById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSAUTO getContractDsAutoByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSAUTO getContractDsAutoByNumber(final String aContractNumber) {
 	    return soap.getContractDsAutoByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSAUTO getContractDsAutoByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSAUTO getContractDsAutoByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsAutoByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSCARGO getContractDsCargoByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSCARGO getContractDsCargoByContractDate(final String aContractDate) {
 	    return soap.getContractDsCargoByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSCARGO getContractDsCargoById(int aCONTRACTID) {
+	public CONTRACTDSCARGO getContractDsCargoById(final int aCONTRACTID) {
 	    return soap.getContractDsCargoById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSCARGO getContractDsCargoByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSCARGO getContractDsCargoByNumber(final String aContractNumber) {
 	    return soap.getContractDsCargoByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSCARGO getContractDsCargoByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSCARGO getContractDsCargoByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsCargoByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByContractDate(final String aContractDate) {
 	    return soap.getContractDsGpoAirByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSGPOAIR getContractDsGpoAirById(int aCONTRACTID) {
+	public CONTRACTDSGPOAIR getContractDsGpoAirById(final int aCONTRACTID) {
 	    return soap.getContractDsGpoAirById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByNumber(final String aContractNumber) {
 	    return soap.getContractDsGpoAirByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsGpoAirByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByContractDate(final String aContractDate) {
 	    return soap.getContractDsGpoAutoByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSGPOAUTO getContractDsGpoAutoById(int aCONTRACTID) {
+	public CONTRACTDSGPOAUTO getContractDsGpoAutoById(final int aCONTRACTID) {
 	    return soap.getContractDsGpoAutoById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByNumber(final String aContractNumber) {
 	    return soap.getContractDsGpoAutoByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsGpoAutoByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByContractDate(final String aContractDate) {
 	    return soap.getContractDsGpoOtherByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSGPOOTHER getContractDsGpoOtherById(int aCONTRACTID) {
+	public CONTRACTDSGPOOTHER getContractDsGpoOtherById(final int aCONTRACTID) {
 	    return soap.getContractDsGpoOtherById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByNumber(final String aContractNumber) {
 	    return soap.getContractDsGpoOtherByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsGpoOtherByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByContractDate(final String aContractDate) {
 	    return soap.getContractDsGpoWaterByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSGPOWATER getContractDsGpoWaterById(int aCONTRACTID) {
+	public CONTRACTDSGPOWATER getContractDsGpoWaterById(final int aCONTRACTID) {
 	    return soap.getContractDsGpoWaterById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByNumber(final String aContractNumber) {
 	    return soap.getContractDsGpoWaterByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsGpoWaterByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByContractDate(final String aContractDate) {
 	    return soap.getContractDsGuaranteeByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSGUARANTEE getContractDsGuaranteeById(int aCONTRACTID) {
+	public CONTRACTDSGUARANTEE getContractDsGuaranteeById(final int aCONTRACTID) {
 	    return soap.getContractDsGuaranteeById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByNumber(final String aContractNumber) {
 	    return soap.getContractDsGuaranteeByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsGuaranteeByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSHEALTH getContractDsHealthByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSHEALTH getContractDsHealthByContractDate(final String aContractDate) {
 	    return soap.getContractDsHealthByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSHEALTH getContractDsHealthById(int aCONTRACTID) {
+	public CONTRACTDSHEALTH getContractDsHealthById(final int aCONTRACTID) {
 	    return soap.getContractDsHealthById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSHEALTH getContractDsHealthByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSHEALTH getContractDsHealthByNumber(final String aContractNumber) {
 	    return soap.getContractDsHealthByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSHEALTH getContractDsHealthByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSHEALTH getContractDsHealthByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsHealthByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByContractDate(final String aContractDate) {
 	    return soap.getContractDsLegalCostsByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSLEGALCOSTS getContractDsLegalCostsById(int aCONTRACTID) {
+	public CONTRACTDSLEGALCOSTS getContractDsLegalCostsById(final int aCONTRACTID) {
 	    return soap.getContractDsLegalCostsById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByNumber(final String aContractNumber) {
 	    return soap.getContractDsLegalCostsByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsLegalCostsByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLIFE getContractDsLifeByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSLIFE getContractDsLifeByContractDate(final String aContractDate) {
 	    return soap.getContractDsLifeByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSLIFE getContractDsLifeById(int aCONTRACTID) {
+	public CONTRACTDSLIFE getContractDsLifeById(final int aCONTRACTID) {
 	    return soap.getContractDsLifeById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLIFE getContractDsLifeByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSLIFE getContractDsLifeByNumber(final String aContractNumber) {
 	    return soap.getContractDsLifeByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLIFE getContractDsLifeByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSLIFE getContractDsLifeByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsLifeByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLOAN getContractDsLoanByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSLOAN getContractDsLoanByContractDate(final String aContractDate) {
 	    return soap.getContractDsLoanByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSLOAN getContractDsLoanById(int aCONTRACTID) {
+	public CONTRACTDSLOAN getContractDsLoanById(final int aCONTRACTID) {
 	    return soap.getContractDsLoanById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLOAN getContractDsLoanByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSLOAN getContractDsLoanByNumber(final String aContractNumber) {
 	    return soap.getContractDsLoanByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLOAN getContractDsLoanByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSLOAN getContractDsLoanByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsLoanByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLOSSES getContractDsLossesByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSLOSSES getContractDsLossesByContractDate(final String aContractDate) {
 	    return soap.getContractDsLossesByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSLOSSES getContractDsLossesById(int aCONTRACTID) {
+	public CONTRACTDSLOSSES getContractDsLossesById(final int aCONTRACTID) {
 	    return soap.getContractDsLossesById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLOSSES getContractDsLossesByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSLOSSES getContractDsLossesByNumber(final String aContractNumber) {
 	    return soap.getContractDsLossesByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSLOSSES getContractDsLossesByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSLOSSES getContractDsLossesByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsLossesByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByContractDate(final String aContractDate) {
 	    return soap.getContractDsMortgageByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSMORTGAGE getContractDsMortgageById(int aCONTRACTID) {
+	public CONTRACTDSMORTGAGE getContractDsMortgageById(final int aCONTRACTID) {
 	    return soap.getContractDsMortgageById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByNumber(final String aContractNumber) {
 	    return soap.getContractDsMortgageByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsMortgageByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
 	public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByContractDate(
-		String aContractDate) {
+		final String aContractDate) {
 	    return soap.getContractDsOtherLossesByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSOTHERLOSSES getContractDsOtherLossesById(int aCONTRACTID) {
+	public CONTRACTDSOTHERLOSSES getContractDsOtherLossesById(final int aCONTRACTID) {
 	    return soap.getContractDsOtherLossesById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByNumber(final String aContractNumber) {
 	    return soap.getContractDsOtherLossesByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsOtherLossesByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByContractDate(final String aContractDate) {
 	    return soap.getContractDsPropertyByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSPROPERTY getContractDsPropertyById(int aCONTRACTID) {
+	public CONTRACTDSPROPERTY getContractDsPropertyById(final int aCONTRACTID) {
 	    return soap.getContractDsPropertyById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByNumber(final String aContractNumber) {
 	    return soap.getContractDsPropertyByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsPropertyByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByContractDate(final String aContractDate) {
 	    return soap.getContractDsRailwaysByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSRAILWAYS getContractDsRailwaysById(int aCONTRACTID) {
+	public CONTRACTDSRAILWAYS getContractDsRailwaysById(final int aCONTRACTID) {
 	    return soap.getContractDsRailwaysById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByNumber(final String aContractNumber) {
 	    return soap.getContractDsRailwaysByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractDsRailwaysByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSTITLE getContractDsTitleByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSTITLE getContractDsTitleByContractDate(final String aContractDate) {
 	    return soap.getContractDsTitleByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSTITLE getContractDsTitleById(int aCONTRACTID) {
+	public CONTRACTDSTITLE getContractDsTitleById(final int aCONTRACTID) {
 	    return soap.getContractDsTitleById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSTITLE getContractDsTitleByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSTITLE getContractDsTitleByNumber(final String aContractNumber) {
 	    return soap.getContractDsTitleByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSTITLE getContractDsTitleByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSTITLE getContractDsTitleByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsTitleByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSWATER getContractDsWaterByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTDSWATER getContractDsWaterByContractDate(final String aContractDate) {
 	    return soap.getContractDsWaterByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTDSWATER getContractDsWaterById(int aCONTRACTID) {
+	public CONTRACTDSWATER getContractDsWaterById(final int aCONTRACTID) {
 	    return soap.getContractDsWaterById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSWATER getContractDsWaterByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTDSWATER getContractDsWaterByNumber(final String aContractNumber) {
 	    return soap.getContractDsWaterByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTDSWATER getContractDsWaterByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTDSWATER getContractDsWaterByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractDsWaterByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSECO getContractOsEcoByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTOSECO getContractOsEcoByContractDate(final String aContractDate) {
 	    return soap.getContractOsEcoByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSECO getContractOsEcoById(int aCONTRACTID) {
+	public CONTRACTOSECO getContractOsEcoById(final int aCONTRACTID) {
 	    return soap.getContractOsEcoById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSECO getContractOsEcoByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTOSECO getContractOsEcoByNumber(final String aContractNumber) {
 	    return soap.getContractOsEcoByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSECO getContractOsEcoByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTOSECO getContractOsEcoByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractOsEcoByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
 	public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByContractDate(
-		String aContractDate) {
+		final String aContractDate) {
 	    return soap.getContractOsgpoAuditorsByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSGPOAUDITORS getContractOsgpoAuditorsById(int aCONTRACTID) {
+	public CONTRACTOSGPOAUDITORS getContractOsgpoAuditorsById(final int aCONTRACTID) {
 	    return soap.getContractOsgpoAuditorsById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByNumber(final String aContractNumber) {
 	    return soap.getContractOsgpoAuditorsByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractOsgpoAuditorsByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByContractDate(final String aContractDate) {
 	    return soap.getContractOsgpoDoByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSGPODO getContractOsgpoDoById(int aCONTRACTID) {
+	public CONTRACTOSGPODO getContractOsgpoDoById(final int aCONTRACTID) {
 	    return soap.getContractOsgpoDoById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByNumber(final String aContractNumber) {
 	    return soap.getContractOsgpoDoByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractOsgpoDoByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
 	public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByContractDate(
-		String aContractDate) {
+		final String aContractDate) {
 	    return soap.getContractOsgpoNotariusByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSGPONOTARIUS getContractOsgpoNotariusById(int aCONTRACTID) {
+	public CONTRACTOSGPONOTARIUS getContractOsgpoNotariusById(final int aCONTRACTID) {
 	    return soap.getContractOsgpoNotariusById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByNumber(final String aContractNumber) {
 	    return soap.getContractOsgpoNotariusByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractOsgpoNotariusByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
 	public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByContractDate(
-		String aContractDate) {
+		final String aContractDate) {
 	    return soap.getContractOsgpoPassengersByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSGPOPASSENGERS getContractOsgpoPassengersById(int aCONTRACTID) {
+	public CONTRACTOSGPOPASSENGERS getContractOsgpoPassengersById(final int aCONTRACTID) {
 	    return soap.getContractOsgpoPassengersById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
 	public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByNumber(
-		String aContractNumber) {
+		final String aContractNumber) {
 	    return soap.getContractOsgpoPassengersByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByPeriod(String aDateBeg,
-		String aDateEnd) {
+	public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByPeriod(final String aDateBeg,
+		final String aDateEnd) {
 	    return soap.getContractOsgpoPassengersByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByContractDate(final String aContractDate) {
 	    return soap.getContractOsgpoTourByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSGPOTOUR getContractOsgpoTourById(int aCONTRACTID) {
+	public CONTRACTOSGPOTOUR getContractOsgpoTourById(final int aCONTRACTID) {
 	    return soap.getContractOsgpoTourById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByNumber(final String aContractNumber) {
 	    return soap.getContractOsgpoTourByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractOsgpoTourByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSRNS getContractOSRNSByContractDate(String aContractDate) {
+	public ArrayOfCONTRACTOSRNS getContractOSRNSByContractDate(final String aContractDate) {
 	    return soap.getContractOSRNSByContractDate(aSessionID, aContractDate);
 	}
 
 	@Override
-	public CONTRACTOSRNS getContractOSRNSById(int aCONTRACTID) {
+	public CONTRACTOSRNS getContractOSRNSById(final int aCONTRACTID) {
 	    return soap.getContractOSRNSById(aSessionID, aCONTRACTID);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSRNS getContractOSRNSByNumber(String aContractNumber) {
+	public ArrayOfCONTRACTOSRNS getContractOSRNSByNumber(final String aContractNumber) {
 	    return soap.getContractOSRNSByNumber(aSessionID, aContractNumber);
 	}
 
 	@Override
-	public ArrayOfCONTRACTOSRNS getContractOSRNSByPeriod(String aDateBeg, String aDateEnd) {
+	public ArrayOfCONTRACTOSRNS getContractOSRNSByPeriod(final String aDateBeg, final String aDateEnd) {
 	    return soap.getContractOSRNSByPeriod(aSessionID, aDateBeg, aDateEnd);
 	}
 
 	@Override
-	public IECOMMON getIECOMMONById(int aIECOMMONID) {
+	public IECOMMON getIECOMMONById(final int aIECOMMONID) {
 	    return soap.getIECOMMONById(aSessionID, aIECOMMONID);
 	}
 
 	@Override
-	public ArrayOfString getIECOMMONBYPARAMS(IECOMMON aIECOMMON) {
+	public ArrayOfString getIECOMMONBYPARAMS(final IECOMMON aIECOMMON) {
 	    return soap.getIECOMMONBYPARAMS(aSessionID, aIECOMMON);
 	}
 
 	@Override
-	public ArrayOfInsuranceEvent getInsuranceEvents(InsuranceEvent aInsuranceEvent) {
+	public ArrayOfInsuranceEvent getInsuranceEvents(final InsuranceEvent aInsuranceEvent) {
 	    return soap.getInsuranceEvents(aSessionID, aInsuranceEvent);
 	}
 
 	@Override
-	public ArrayOfItem getItems(String aTableName) {
+	public ArrayOfItem getItems(final String aTableName) {
 	    return soap.getItems(aSessionID, aTableName);
 	}
 
 	@Override
-	public String getLastContract(String aContractID) {
+	public String getLastContract(final String aContractID) {
 	    return soap.getLastContract(aSessionID, aContractID);
 	}
 
 	@Override
-	public Item getMarkUpFactorXML(int idClient, int idEmplType, int idProfRisk) {
+	public Item getMarkUpFactorXML(final int idClient, final int idEmplType, final int idProfRisk) {
 	    return soap.getMarkUpFactorXML(aSessionID, idClient, idEmplType, idProfRisk);
 	}
 
 	@Override
-	public ArrayOfMIDDLEMAN getMiddlemenByKeyFields(MIDDLEMAN aMiddleman) {
+	public ArrayOfMIDDLEMAN getMiddlemenByKeyFields(final MIDDLEMAN aMiddleman) {
 	    return soap.getMiddlemenByKeyFields(aSessionID, aMiddleman);
 	}
 
 	@Override
-	public ArrayOfMiddlemenPayment getMiddlemenPaymentsByCreatedOrChangedDateTime(String aDateTime1,
-		String aDateTime2) {
+	public ArrayOfMiddlemenPayment getMiddlemenPaymentsByCreatedOrChangedDateTime(final String aDateTime1,
+		final String aDateTime2) {
 	    return soap.getMiddlemenPaymentsByCreatedOrChangedDateTime(aSessionID, aDateTime1, aDateTime2);
 	}
 
 	@Override
-	public String getOSRNSPREMIUM(String aXml) {
+	public String getOSRNSPREMIUM(final String aXml) {
 	    return soap.getOSRNSPREMIUM(aSessionID, aXml);
 	}
 
 	@Override
-	public ArrayOfPolicy getPoliciesByCreatedOrChangedDateTime(int aBranchId, String aDateTime1,
-		String aDateTime2) {
+	public ArrayOfPolicy getPoliciesByCreatedOrChangedDateTime(final int aBranchId, final String aDateTime1,
+		final String aDateTime2) {
 	    return soap.getPoliciesByCreatedOrChangedDateTime(aSessionID, aBranchId, aDateTime1, aDateTime2);
 	}
 
 	@Override
-	public ArrayOfPolicy getPoliciesByNumber(String aPolicyNumber) {
+	public ArrayOfPolicy getPoliciesByNumber(final String aPolicyNumber) {
 	    return soap.getPoliciesByNumber(aSessionID, aPolicyNumber);
 	}
 
 	@Override
-	public ArrayOfPolicy getPoliciesByPolicyDate(String aPolicyDate1, String aPolicyDate2) {
+	public ArrayOfPolicy getPoliciesByPolicyDate(final String aPolicyDate1, final String aPolicyDate2) {
 	    return soap.getPoliciesByPolicyDate(aSessionID, aPolicyDate1, aPolicyDate2);
 	}
 
 	@Override
-	public ArrayOfItem getPoliciesInfoByReason(String aCondition, String aPolicyDate1,
-		String aPolicyDate2) {
+	public ArrayOfItem getPoliciesInfoByReason(final String aCondition, final String aPolicyDate1,
+		final String aPolicyDate2) {
 	    return soap.getPoliciesInfoByReason(aSessionID, aCondition, aPolicyDate1, aPolicyDate2);
 	}
 
 	@Override
-	public Policy getPolicyByGlobalID(String aGlobalID) {
+	public Policy getPolicyByGlobalID(final String aGlobalID) {
 	    return soap.getPolicyByGlobalID(aSessionID, aGlobalID);
 	}
 
 	@Override
-	public Policy getPolicyByID(int aPolicyID) {
+	public Policy getPolicyByID(final int aPolicyID) {
 	    return soap.getPolicyByID(aSessionID, aPolicyID);
 	}
 
 	@Override
-	public String getReport(String reportName, ArrayOfSodParameter parametrIn) {
+	public String getReport(final String reportName, final ArrayOfSodParameter parametrIn) {
 	    return soap.getReport(aSessionID, reportName, parametrIn);
 	}
 
 	@Override
-	public REQUEST getREQUESTBYID(int aRequestID) {
+	public REQUEST getREQUESTBYID(final int aRequestID) {
 	    return soap.getREQUESTBYID(aSessionID, aRequestID);
 	}
 
@@ -1006,32 +1006,33 @@ public class ConnectionPoolBean implements ConnectionPool {
 	}
 
 	@Override
-	public ArrayOfTF getTFByEngineNumber(String aEngineNumber) {
+	public ArrayOfTF getTFByEngineNumber(final String aEngineNumber) {
 	    return soap.getTFByEngineNumber(aSessionID, aEngineNumber);
 	}
 
 	@Override
-	public ArrayOfTF getTFByKeyFields(TF aTF) {
+	public ArrayOfTF getTFByKeyFields(final TF aTF) {
 	    return soap.getTFByKeyFields(aSessionID, aTF);
 	}
 
 	@Override
-	public ArrayOfTF getTFByNumber(String aTFNUMBER) {
+	public ArrayOfTF getTFByNumber(final String aTFNUMBER) {
 	    return soap.getTFByNumber(aSessionID, aTFNUMBER);
 	}
 
 	@Override
-	public ArrayOfTF getTFByVIN(String aVIN) {
+	public ArrayOfTF getTFByVIN(final String aVIN) {
 	    return soap.getTFByVIN(aSessionID, aVIN);
 	}
 
 	@Override
-	public ArrayOfTFClasses getTFClasses(int aClientId) {
+	public ArrayOfTFClasses getTFClasses(final int aClientId) {
 	    return soap.getTFClasses(aSessionID, aClientId);
 	}
 
 	@Override
-	public ArrayOfUnionRecord getUnionRecords(String aTableName, String aDateFrom, String aDateTo) {
+	public ArrayOfUnionRecord getUnionRecords(final String aTableName, final String aDateFrom,
+		final String aDateTo) {
 	    return soap.getUnionRecords(aSessionID, aTableName, aDateFrom, aDateTo);
 	}
 
@@ -1046,22 +1047,22 @@ public class ConnectionPoolBean implements ConnectionPool {
 	}
 
 	@Override
-	public ArrayOfVictimObject getVictimObjects(VictimObject aVictimObject) {
+	public ArrayOfVictimObject getVictimObjects(final VictimObject aVictimObject) {
 	    return soap.getVictimObjects(aSessionID, aVictimObject);
 	}
 
 	@Override
-	public ArrayOfVOITUREMARK getVoitureMarks(VOITUREMARK aSearchParams) {
+	public ArrayOfVOITUREMARK getVoitureMarks(final VOITUREMARK aSearchParams) {
 	    return soap.getVoitureMarks(aSessionID, aSearchParams);
 	}
 
 	@Override
-	public int getVoitureModelIdByName(String aVoitureMarkName, String aVoitureModelName) {
+	public int getVoitureModelIdByName(final String aVoitureMarkName, final String aVoitureModelName) {
 	    return soap.getVoitureModelIdByName(aSessionID, aVoitureMarkName, aVoitureModelName);
 	}
 
 	@Override
-	public ArrayOfVOITUREMODEL getVoitureModels(VOITUREMODEL aSearchParams) {
+	public ArrayOfVOITUREMODEL getVoitureModels(final VOITUREMODEL aSearchParams) {
 	    return soap.getVoitureModels(aSessionID, aSearchParams);
 	}
 
@@ -1074,256 +1075,256 @@ public class ConnectionPoolBean implements ConnectionPool {
 	}
 
 	@Override
-	public boolean sessionExists(String aUserName) {
+	public boolean sessionExists(final String aUserName) {
 	    return soap.sessionExists(aSessionID, aUserName);
 	}
 
 	@Override
-	public Client setClient(Client aClient) {
+	public Client setClient(final Client aClient) {
 	    return soap.setClient(aSessionID, aClient);
 	}
 
 	@Override
-	public CLIENTPBDETAILS setClientPBDetails(CLIENTPBDETAILS aClientPBDetails) {
+	public CLIENTPBDETAILS setClientPBDetails(final CLIENTPBDETAILS aClientPBDetails) {
 	    return soap.setClientPBDetails(aSessionID, aClientPBDetails);
 	}
 
 	@Override
 	public CONTRACTAGRICULTURELIST setContractAgriculture(
-		CONTRACTAGRICULTURELIST aCONTRACTAGRICULTURELIST) {
+		final CONTRACTAGRICULTURELIST aCONTRACTAGRICULTURELIST) {
 	    return soap.setContractAgriculture(aSessionID, aCONTRACTAGRICULTURELIST);
 	}
 
 	@Override
-	public CONTRACTDSACCIDENT setContractDsAccident(CONTRACTDSACCIDENT aCONTRACTDSACCIDENT) {
+	public CONTRACTDSACCIDENT setContractDsAccident(final CONTRACTDSACCIDENT aCONTRACTDSACCIDENT) {
 	    return soap.setContractDsAccident(aSessionID, aCONTRACTDSACCIDENT);
 	}
 
 	@Override
-	public CONTRACTDSAIR setContractDsAir(CONTRACTDSAIR aCONTRACTDSAIR) {
+	public CONTRACTDSAIR setContractDsAir(final CONTRACTDSAIR aCONTRACTDSAIR) {
 	    return soap.setContractDsAir(aSessionID, aCONTRACTDSAIR);
 	}
 
 	@Override
-	public CONTRACTDSANNUITY setContractDsAnnuity(CONTRACTDSANNUITY aCONTRACTDSANNUITY) {
+	public CONTRACTDSANNUITY setContractDsAnnuity(final CONTRACTDSANNUITY aCONTRACTDSANNUITY) {
 	    return soap.setContractDsAnnuity(aSessionID, aCONTRACTDSANNUITY);
 	}
 
 	@Override
-	public CONTRACTDSAUTO setContractDsAuto(CONTRACTDSAUTO aCONTRACTDSAUTO) {
+	public CONTRACTDSAUTO setContractDsAuto(final CONTRACTDSAUTO aCONTRACTDSAUTO) {
 	    return soap.setContractDsAuto(aSessionID, aCONTRACTDSAUTO);
 	}
 
 	@Override
-	public CONTRACTDSCARGO setContractDsCargo(CONTRACTDSCARGO aCONTRACTDSCARGO) {
+	public CONTRACTDSCARGO setContractDsCargo(final CONTRACTDSCARGO aCONTRACTDSCARGO) {
 	    return soap.setContractDsCargo(aSessionID, aCONTRACTDSCARGO);
 	}
 
 	@Override
-	public CONTRACTDSGPOAIR setContractDsGpoAir(CONTRACTDSGPOAIR aCONTRACTDSGPOAIR) {
+	public CONTRACTDSGPOAIR setContractDsGpoAir(final CONTRACTDSGPOAIR aCONTRACTDSGPOAIR) {
 	    return soap.setContractDsGpoAir(aSessionID, aCONTRACTDSGPOAIR);
 	}
 
 	@Override
-	public CONTRACTDSGPOAUTO setContractDsGpoAuto(CONTRACTDSGPOAUTO aCONTRACTDSGPOAUTO) {
+	public CONTRACTDSGPOAUTO setContractDsGpoAuto(final CONTRACTDSGPOAUTO aCONTRACTDSGPOAUTO) {
 	    return soap.setContractDsGpoAuto(aSessionID, aCONTRACTDSGPOAUTO);
 	}
 
 	@Override
-	public CONTRACTDSGPOOTHER setContractDsGpoOther(CONTRACTDSGPOOTHER aCONTRACTDSGPOOTHER) {
+	public CONTRACTDSGPOOTHER setContractDsGpoOther(final CONTRACTDSGPOOTHER aCONTRACTDSGPOOTHER) {
 	    return soap.setContractDsGpoOther(aSessionID, aCONTRACTDSGPOOTHER);
 	}
 
 	@Override
-	public CONTRACTDSGPOWATER setContractDsGpoWater(CONTRACTDSGPOWATER aCONTRACTDSGPOWATER) {
+	public CONTRACTDSGPOWATER setContractDsGpoWater(final CONTRACTDSGPOWATER aCONTRACTDSGPOWATER) {
 	    return soap.setContractDsGpoWater(aSessionID, aCONTRACTDSGPOWATER);
 	}
 
 	@Override
-	public CONTRACTDSGUARANTEE setContractDsGuarantee(CONTRACTDSGUARANTEE aCONTRACTDSGUARANTEE) {
+	public CONTRACTDSGUARANTEE setContractDsGuarantee(final CONTRACTDSGUARANTEE aCONTRACTDSGUARANTEE) {
 	    return soap.setContractDsGuarantee(aSessionID, aCONTRACTDSGUARANTEE);
 	}
 
 	@Override
-	public CONTRACTDSHEALTH setContractDsHealth(CONTRACTDSHEALTH aCONTRACTDSHEALTH) {
+	public CONTRACTDSHEALTH setContractDsHealth(final CONTRACTDSHEALTH aCONTRACTDSHEALTH) {
 	    return soap.setContractDsHealth(aSessionID, aCONTRACTDSHEALTH);
 	}
 
 	@Override
-	public CONTRACTDSLEGALCOSTS setContractDsLegalCosts(CONTRACTDSLEGALCOSTS aCONTRACTDSLEGALCOSTS) {
+	public CONTRACTDSLEGALCOSTS setContractDsLegalCosts(final CONTRACTDSLEGALCOSTS aCONTRACTDSLEGALCOSTS) {
 	    return soap.setContractDsLegalCosts(aSessionID, aCONTRACTDSLEGALCOSTS);
 	}
 
 	@Override
-	public CONTRACTDSLIFE setContractDsLife(CONTRACTDSLIFE aCONTRACTDSLIFE) {
+	public CONTRACTDSLIFE setContractDsLife(final CONTRACTDSLIFE aCONTRACTDSLIFE) {
 	    return soap.setContractDsLife(aSessionID, aCONTRACTDSLIFE);
 	}
 
 	@Override
-	public CONTRACTDSLOAN setContractDsLoan(CONTRACTDSLOAN aCONTRACTDSLOAN) {
+	public CONTRACTDSLOAN setContractDsLoan(final CONTRACTDSLOAN aCONTRACTDSLOAN) {
 	    return soap.setContractDsLoan(aSessionID, aCONTRACTDSLOAN);
 	}
 
 	@Override
-	public CONTRACTDSLOSSES setContractDsLosses(CONTRACTDSLOSSES aCONTRACTDSLOSSES) {
+	public CONTRACTDSLOSSES setContractDsLosses(final CONTRACTDSLOSSES aCONTRACTDSLOSSES) {
 	    return soap.setContractDsLosses(aSessionID, aCONTRACTDSLOSSES);
 	}
 
 	@Override
-	public CONTRACTDSMORTGAGE setContractDsMortgage(CONTRACTDSMORTGAGE aCONTRACTDSMORTGAGE) {
+	public CONTRACTDSMORTGAGE setContractDsMortgage(final CONTRACTDSMORTGAGE aCONTRACTDSMORTGAGE) {
 	    return soap.setContractDsMortgage(aSessionID, aCONTRACTDSMORTGAGE);
 	}
 
 	@Override
 	public CONTRACTDSOTHERLOSSES setContractDsOtherLosses(
-		CONTRACTDSOTHERLOSSES aCONTRACTDSOTHERLOSSES) {
+		final CONTRACTDSOTHERLOSSES aCONTRACTDSOTHERLOSSES) {
 	    return soap.setContractDsOtherLosses(aSessionID, aCONTRACTDSOTHERLOSSES);
 	}
 
 	@Override
-	public CONTRACTDSPROPERTY setContractDsProperty(CONTRACTDSPROPERTY aCONTRACTDSPROPERTY) {
+	public CONTRACTDSPROPERTY setContractDsProperty(final CONTRACTDSPROPERTY aCONTRACTDSPROPERTY) {
 	    return soap.setContractDsProperty(aSessionID, aCONTRACTDSPROPERTY);
 	}
 
 	@Override
-	public CONTRACTDSRAILWAYS setContractDsRailways(CONTRACTDSRAILWAYS aCONTRACTDSRAILWAYS) {
+	public CONTRACTDSRAILWAYS setContractDsRailways(final CONTRACTDSRAILWAYS aCONTRACTDSRAILWAYS) {
 	    return soap.setContractDsRailways(aSessionID, aCONTRACTDSRAILWAYS);
 	}
 
 	@Override
-	public CONTRACTDSTITLE setContractDsTitle(CONTRACTDSTITLE aCONTRACTDSTITLE) {
+	public CONTRACTDSTITLE setContractDsTitle(final CONTRACTDSTITLE aCONTRACTDSTITLE) {
 	    return soap.setContractDsTitle(aSessionID, aCONTRACTDSTITLE);
 	}
 
 	@Override
-	public CONTRACTDSWATER setContractDsWater(CONTRACTDSWATER aCONTRACTDSWATER) {
+	public CONTRACTDSWATER setContractDsWater(final CONTRACTDSWATER aCONTRACTDSWATER) {
 	    return soap.setContractDsWater(aSessionID, aCONTRACTDSWATER);
 	}
 
 	@Override
-	public String setContractDuplicate(String aParamsXML) {
+	public String setContractDuplicate(final String aParamsXML) {
 	    return soap.setContractDuplicate(aSessionID, aParamsXML);
 	}
 
 	@Override
-	public CONTRACTOSECO setContractOsEco(CONTRACTOSECO aCONTRACTOSECO) {
+	public CONTRACTOSECO setContractOsEco(final CONTRACTOSECO aCONTRACTOSECO) {
 	    return soap.setContractOsEco(aSessionID, aCONTRACTOSECO);
 	}
 
 	@Override
 	public CONTRACTOSGPOAUDITORS setContractOsgpoAuditors(
-		CONTRACTOSGPOAUDITORS aCONTRACTOSGPOAUDITORS) {
+		final CONTRACTOSGPOAUDITORS aCONTRACTOSGPOAUDITORS) {
 	    return soap.setContractOsgpoAuditors(aSessionID, aCONTRACTOSGPOAUDITORS);
 	}
 
 	@Override
-	public CONTRACTOSGPODO setContractOsgpoDo(CONTRACTOSGPODO aCONTRACTOSGPODO) {
+	public CONTRACTOSGPODO setContractOsgpoDo(final CONTRACTOSGPODO aCONTRACTOSGPODO) {
 	    return soap.setContractOsgpoDo(aSessionID, aCONTRACTOSGPODO);
 	}
 
 	@Override
 	public CONTRACTOSGPONOTARIUS setContractOsgpoNotarius(
-		CONTRACTOSGPONOTARIUS aCONTRACTOSGPONOTARIUS) {
+		final CONTRACTOSGPONOTARIUS aCONTRACTOSGPONOTARIUS) {
 	    return soap.setContractOsgpoNotarius(aSessionID, aCONTRACTOSGPONOTARIUS);
 	}
 
 	@Override
 	public CONTRACTOSGPOPASSENGERS setContractOsgpoPassengers(
-		CONTRACTOSGPOPASSENGERS aCONTRACTOSGPOPASSENGERS) {
+		final CONTRACTOSGPOPASSENGERS aCONTRACTOSGPOPASSENGERS) {
 	    return soap.setContractOsgpoPassengers(aSessionID, aCONTRACTOSGPOPASSENGERS);
 	}
 
 	@Override
-	public CONTRACTOSGPOTOUR setContractOsgpoTour(CONTRACTOSGPOTOUR aCONTRACTOSGPOTOUR) {
+	public CONTRACTOSGPOTOUR setContractOsgpoTour(final CONTRACTOSGPOTOUR aCONTRACTOSGPOTOUR) {
 	    return soap.setContractOsgpoTour(aSessionID, aCONTRACTOSGPOTOUR);
 	}
 
 	@Override
-	public CONTRACTOSRNS setContractOSRNS(CONTRACTOSRNS aCONTRACTOSRNS) {
+	public CONTRACTOSRNS setContractOSRNS(final CONTRACTOSRNS aCONTRACTOSRNS) {
 	    return soap.setContractOSRNS(aSessionID, aCONTRACTOSRNS);
 	}
 
 	@Override
-	public String setContractRescinding(int aCONTRACTID, int aRESCINDINGREASONID,
-		String aRESCINDINGDATE) {
+	public String setContractRescinding(final int aCONTRACTID, final int aRESCINDINGREASONID,
+		final String aRESCINDINGDATE) {
 	    return soap.setContractRescinding(aSessionID, aCONTRACTID, aRESCINDINGREASONID, aRESCINDINGDATE);
 	}
 
 	@Override
-	public IECOMMON setIECOMMON(IECOMMON aIECOMMON) {
+	public IECOMMON setIECOMMON(final IECOMMON aIECOMMON) {
 	    return soap.setIECOMMON(aSessionID, aIECOMMON);
 	}
 
 	@Override
-	public InsuranceEvent setInsuranceEvent(InsuranceEvent aInsuranceEvent) {
+	public InsuranceEvent setInsuranceEvent(final InsuranceEvent aInsuranceEvent) {
 	    return soap.setInsuranceEvent(aSessionID, aInsuranceEvent);
 	}
 
 	@Override
-	public void setInsuranceEventMistake(int aInsEventID, String aDate) {
+	public void setInsuranceEventMistake(final int aInsEventID, final String aDate) {
 	    soap.setInsuranceEventMistake(aSessionID, aInsEventID, aDate);
 	}
 
 	@Override
-	public MIDDLEMAN setMiddleman(MIDDLEMAN aMiddleman) {
+	public MIDDLEMAN setMiddleman(final MIDDLEMAN aMiddleman) {
 	    return soap.setMiddleman(aSessionID, aMiddleman);
 	}
 
 	@Override
-	public NewUserRequest setNewUserRequest(NewUserRequest aNewUserRequest) {
+	public NewUserRequest setNewUserRequest(final NewUserRequest aNewUserRequest) {
 	    return soap.setNewUserRequest(aSessionID, aNewUserRequest);
 	}
 
 	@Override
-	public void setPerpetratorMistake(int aPerpetratorID, String aDate) {
+	public void setPerpetratorMistake(final int aPerpetratorID, final String aDate) {
 	    soap.setPerpetratorMistake(aSessionID, aPerpetratorID, aDate);
 	}
 
 	@Override
-	public Policy setPolicy(Policy aPolicy) {
+	public Policy setPolicy(final Policy aPolicy) {
 	    return soap.setPolicy(aSessionID, aPolicy);
 	}
 
 	@Override
-	public Policy setPolicyDuplicate(int aOriginalPolicyId, String aDuplicateNumber,
-		String aDuplicateDate, String aDescription) {
+	public Policy setPolicyDuplicate(final int aOriginalPolicyId, final String aDuplicateNumber,
+		final String aDuplicateDate, final String aDescription) {
 	    return soap.setPolicyDuplicate(aSessionID, aOriginalPolicyId, aDuplicateNumber, aDuplicateDate,
 		    aDescription);
 	}
 
 	@Override
-	public Policy setPolicyDuplicateXML(String aParamsXML) {
+	public Policy setPolicyDuplicateXML(final String aParamsXML) {
 	    return soap.setPolicyDuplicateXML(aSessionID, aParamsXML);
 	}
 
 	@Override
-	public int setPolicyRescindingReason(int aPolicyId, int aRescindingReasonId,
-		String aRescindingDate) {
+	public int setPolicyRescindingReason(final int aPolicyId, final int aRescindingReasonId,
+		final String aRescindingDate) {
 	    return soap.setPolicyRescindingReason(aSessionID, aPolicyId, aRescindingReasonId, aRescindingDate);
 	}
 
 	@Override
-	public REQUEST setRequest(REQUEST aREQUEST) {
+	public REQUEST setRequest(final REQUEST aREQUEST) {
 	    return soap.setRequest(aSessionID, aREQUEST);
 	}
 
 	@Override
-	public TF setTF(TF aTF) {
+	public TF setTF(final TF aTF) {
 	    return soap.setTF(aSessionID, aTF);
 	}
 
 	@Override
-	public InsuranceEvent setVictimObject(VictimObject aVictimObject) {
+	public InsuranceEvent setVictimObject(final VictimObject aVictimObject) {
 	    return soap.setVictimObject(aSessionID, aVictimObject);
 	}
 
 	@Override
-	public VOITUREMARK setVoitureMark(VOITUREMARK aVoitureMark) {
+	public VOITUREMARK setVoitureMark(final VOITUREMARK aVoitureMark) {
 	    return soap.setVoitureMark(aSessionID, aVoitureMark);
 	}
 
 	@Override
-	public VOITUREMODEL setVoitureModel(VOITUREMODEL aVoitureModel) {
+	public VOITUREMODEL setVoitureModel(final VOITUREMODEL aVoitureModel) {
 	    return soap.setVoitureModel(aSessionID, aVoitureModel);
 	}
 

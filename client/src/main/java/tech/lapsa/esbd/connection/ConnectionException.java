@@ -6,20 +6,20 @@ public class ConnectionException extends RuntimeException {
     public ConnectionException() {
     }
 
-    public ConnectionException(String message, Throwable cause, boolean enableSuppression,
-	    boolean writableStackTrace) {
+    public ConnectionException(final String message, final Throwable cause, final boolean enableSuppression,
+	    final boolean writableStackTrace) {
 	super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public ConnectionException(String message, Throwable cause) {
+    public ConnectionException(final String message, final Throwable cause) {
 	super(message, cause);
     }
 
-    public ConnectionException(String message) {
+    public ConnectionException(final String message) {
 	super(message);
     }
 
-    public ConnectionException(Throwable cause) {
+    public ConnectionException(final Throwable cause) {
 	super(cause);
     }
 }

@@ -19,13 +19,12 @@ public class ConnectionPoolLongTest {
 
     // @Test
     public void longTest() throws ConnectionException, InterruptedException {
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 1000; i++)
 	    try (Connection conn1 = pool.getConnection()) {
 		assertThat(conn1, not(nullValue()));
 		logger.INFO.log(conn1 + " is alive");
 		Thread.sleep(2000);
 	    }
-	}
     }
 
 }

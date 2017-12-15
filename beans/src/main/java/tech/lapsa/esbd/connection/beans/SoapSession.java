@@ -40,12 +40,12 @@ public class SoapSession {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
 	if (other == null || other.getClass() != getClass())
 	    return false;
 	if (other == this)
 	    return true;
-	SoapSession that = (SoapSession) other;
+	final SoapSession that = (SoapSession) other;
 	return new EqualsBuilder()
 		.append(wsdlLocation, that.wsdlLocation)
 		.isEquals();
@@ -56,8 +56,9 @@ public class SoapSession {
 	return String.format("%1$s('%2$s')", this.getClass().getSimpleName(), wsdlLocation.toString());
     }
 
-    public SoapSession(URL wsdlLocation, String userName, String password, MyLogger logger, int connectTimeoutMilis,
-	    int requestTimeoutMilis, int reCheckTimeoutMilis) {
+    public SoapSession(final URL wsdlLocation, final String userName, final String password, final MyLogger logger,
+	    final int connectTimeoutMilis,
+	    final int requestTimeoutMilis, final int reCheckTimeoutMilis) {
 	this.wsdlLocation = wsdlLocation;
 	this.userName = userName;
 	this.password = password;
@@ -108,13 +109,13 @@ public class SoapSession {
 	try {
 	    if (service == null)
 		service = new IICWebService(wsdlLocation);
-	} catch (Exception e) {
-	    String message = String.format("Failed initialize web-service '%1$s' with error message '%2$s'",
+	} catch (final Exception e) {
+	    final String message = String.format("Failed initialize web-service '%1$s' with error message '%2$s'",
 		    IICWebService.class.getSimpleName(), e.getMessage());
 	    throw new ConnectionException(message);
 	}
 	if (service == null) {
-	    String message = String.format("Failed initialize web-service '%1$s'. Value is null",
+	    final String message = String.format("Failed initialize web-service '%1$s'. Value is null",
 		    IICWebService.class.getSimpleName());
 	    throw new ConnectionException(message);
 	}
@@ -129,13 +130,13 @@ public class SoapSession {
 		((BindingProvider) soap).getRequestContext().put(BindingProviderProperties.CONNECT_TIMEOUT,
 			connectTimeoutMilis);
 	    }
-	} catch (Exception e) {
-	    String message = String.format("Failed initialize SOAP '%1$s'. with error message '%2$s'",
+	} catch (final Exception e) {
+	    final String message = String.format("Failed initialize SOAP '%1$s'. with error message '%2$s'",
 		    IICWebServiceSoap.class.getSimpleName(), e.getMessage());
 	    throw new ConnectionException(message);
 	}
 	if (soap == null) {
-	    String message = String.format("Failed initialize SOAP '%1$s'. Value is null",
+	    final String message = String.format("Failed initialize SOAP '%1$s'. Value is null",
 		    IICWebServiceSoap.class.getSimpleName());
 	    throw new ConnectionException(message);
 	}
@@ -150,13 +151,14 @@ public class SoapSession {
 	    else
 		logger.INFO.log("RE-ESTABLISHED %1$s for user '%2$s'", this, userName);
 
-	    User user = soap.authenticateUser(userName, password);
+	    final User user = soap.authenticateUser(userName, password);
 	    sessionId = user.getSessionID();
 	    okChecked();
 	    logger.INFO.log("ESTABLISHED SUCCESSUFUL %1$s aSessionID = '%2$s'", this, sessionId);
-	} catch (Exception e) {
+	} catch (final Exception e) {
 	    notChecked();
-	    String message = String.format("FAILED TO ESTABLISH %1$s error message = '%2$s'", this, e.getMessage());
+	    final String message = String.format("FAILED TO ESTABLISH %1$s error message = '%2$s'", this,
+		    e.getMessage());
 	    throw new ConnectionException(message, e);
 	}
     }
@@ -173,12 +175,12 @@ public class SoapSession {
 
 	notChecked();
 	try {
-	    boolean checked = soap.sessionExists(sessionId, userName);
+	    final boolean checked = soap.sessionExists(sessionId, userName);
 	    if (checked)
 		okChecked();
 	    return checked;
-	} catch (Exception e) {
-	    String message = String.format("FAILED TO CHECK %1$s aSessionID = '%2$s' error message = '%3$s'",
+	} catch (final Exception e) {
+	    final String message = String.format("FAILED TO CHECK %1$s aSessionID = '%2$s' error message = '%3$s'",
 		    this, // 1
 		    sessionId, // 2
 		    e.getMessage()// 3
