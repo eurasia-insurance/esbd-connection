@@ -119,8 +119,8 @@ public class ConnectionPoolBean implements ConnectionPool {
     private static final String JNDI_ESBD_POOL_CONFIGURATION_PROPERTIES = "esbd/resource/Configuration";
     private static final String PROPERTY_ESBD_USER_NAME = "esbd.user.name";
     private static final String PROPERTY_ESBD_USER_PASSWORD = "esbd.user.password";
-    private static final String PROPERTY_ESBD_CONNECT_TIMEOUT_MILIS = "esbd.timeout.request.milis";
-    private static final String PROPERTY_ESBD_REQUEST_TIMEOUT_MILIS = "esbd.timeout.connect.milis";
+    private static final String PROPERTY_ESBD_CONNECT_TIMEOUT_MILIS = "esbd.timeout.connect.milis";
+    private static final String PROPERTY_ESBD_REQUEST_TIMEOUT_MILIS = "esbd.timeout.request.milis";
     private static final String PROPERTY_ESBD_RECHECK_TIMEOUT_MILIS = "esbd.timeout.re-check.milis";
     private static final String PROPERTY_PREFXIX_WSDL_LOCATION = "esbd.wsdl-location.";
 
@@ -170,9 +170,11 @@ public class ConnectionPoolBean implements ConnectionPool {
     public void checkDeffered(final Timer timer) {
 	final int count = deferredSessions.size();
 	// проделать со стеком "плохих" соединений количество итераций
-	// соответствующее размеру этого стека. 
-	// Итераций не должно быть больше, чем изначальное количество содержимого стека, 
-	// т.к. неудачные элементы будут возвращаться в стек и возникнут повторные избыточные 
+	// соответствующее размеру этого стека.
+	// Итераций не должно быть больше, чем изначальное количество
+	// содержимого стека,
+	// т.к. неудачные элементы будут возвращаться в стек и возникнут
+	// повторные избыточные
 	// итерации над элементами
 	for (int i = 0; i < count; i++) {
 	    // забрать соединение из головы стека "плохих" соединений и сделать

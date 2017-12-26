@@ -125,6 +125,10 @@ public class SoapSession {
 	try {
 	    if (soap == null) {
 		soap = service.getIICWebServiceSoap();
+		((BindingProvider) soap).getRequestContext().put("javax.xml.ws.client.connectionTimeout",
+			connectTimeoutMilis);
+		((BindingProvider) soap).getRequestContext().put("javax.xml.ws.client.receiveTimeout",
+			requestTimeoutMilis);
 		((BindingProvider) soap).getRequestContext().put(BindingProviderProperties.REQUEST_TIMEOUT,
 			requestTimeoutMilis);
 		((BindingProvider) soap).getRequestContext().put(BindingProviderProperties.CONNECT_TIMEOUT,
