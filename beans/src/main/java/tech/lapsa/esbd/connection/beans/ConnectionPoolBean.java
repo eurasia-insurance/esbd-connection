@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.Timer;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -114,24 +115,26 @@ import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
 import tech.lapsa.java.commons.logging.MyLogger;
 
 @Singleton
+@Startup
 public class ConnectionPoolBean implements ConnectionPool {
 
     private static final String JNDI_ESBD_POOL_CONFIGURATION_PROPERTIES = "esbd/resource/Configuration";
-    private static final String PROPERTY_ESBD_USER_NAME = "esbd.user.name";
-    private static final String PROPERTY_ESBD_USER_PASSWORD = "esbd.user.password";
-    private static final String PROPERTY_ESBD_CONNECT_TIMEOUT_MILIS = "esbd.timeout.connect.milis";
-    private static final String PROPERTY_ESBD_REQUEST_TIMEOUT_MILIS = "esbd.timeout.request.milis";
-    private static final String PROPERTY_ESBD_RECHECK_TIMEOUT_MILIS = "esbd.timeout.re-check.milis";
+    private static final String PROPERTY_USER_NAME = "esbd.user.name";
+    private static final String PROPERTY_USER_PASSWORD = "esbd.user.password";
+    private static final String PROPERTY_CONNECT_TIMEOUT_MILIS = "esbd.timeout.connect.milis";
+    private static final String PROPERTY_REQUEST_TIMEOUT_MILIS = "esbd.timeout.request.milis";
+    private static final String PROPERTY_SESSION_RECHECK_TIMEOUT_MILIS = "esbd.timeout.esbd-session-re-check.milis";
     private static final String PROPERTY_PREFXIX_WSDL_LOCATION = "esbd.wsdl-location.";
 
     private String esbdUserName;
     private String esbdUserPassword;
     private int connectTimeoutMilis;
     private int requestTimeoutMilis;
-    private int reCheckTimeoutMilis;
+    private int reCheckEsbdSesionAliveTimeoutMilis;
 
     private final MyLogger logger = MyLogger.newBuilder() //
 	    .withNameOf(ConnectionPool.class) //
+	    .addInstantPrefix() //
 	    .build();
 
     @Resource(mappedName = JNDI_ESBD_POOL_CONFIGURATION_PROPERTIES)
@@ -142,11 +145,12 @@ public class ConnectionPoolBean implements ConnectionPool {
 
     @PostConstruct
     public void init() {
-	esbdUserName = config.getProperty(PROPERTY_ESBD_USER_NAME);
-	esbdUserPassword = config.getProperty(PROPERTY_ESBD_USER_PASSWORD);
-	connectTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_ESBD_CONNECT_TIMEOUT_MILIS, "3000"));
-	requestTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_ESBD_REQUEST_TIMEOUT_MILIS, "5000"));
-	reCheckTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_ESBD_RECHECK_TIMEOUT_MILIS, "2000"));
+	esbdUserName = config.getProperty(PROPERTY_USER_NAME);
+	esbdUserPassword = config.getProperty(PROPERTY_USER_PASSWORD);
+	connectTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_CONNECT_TIMEOUT_MILIS, "3000"));
+	requestTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_REQUEST_TIMEOUT_MILIS, "5000"));
+	reCheckEsbdSesionAliveTimeoutMilis = Integer
+		.parseInt(config.getProperty(PROPERTY_SESSION_RECHECK_TIMEOUT_MILIS, "5000"));
 
 	for (final Object k : config.keySet()) {
 	    final String key = (String) k;
@@ -155,7 +159,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 		try {
 		    final URL wsdlLocation = new URL(urlstr);
 		    final SoapSession ss = new SoapSession(wsdlLocation, esbdUserName, esbdUserPassword, logger,
-			    connectTimeoutMilis, requestTimeoutMilis, reCheckTimeoutMilis);
+			    connectTimeoutMilis, requestTimeoutMilis, reCheckEsbdSesionAliveTimeoutMilis);
 		    activeSessions.add(ss);
 		} catch (final MalformedURLException e) {
 		    logger.SEVERE.log(e, "Failed to initialize ESBD connection with url '%1$s'", urlstr);
@@ -165,9 +169,18 @@ public class ConnectionPoolBean implements ConnectionPool {
 	}
     }
 
-    @Schedule(hour = "*", minute = "*", second = "*/30")
-    // пытаться восстановить соединения каждую минуту
+    @Schedule(hour = "*", minute = "*/5")
+    // пытаться восстановить соединения каждые пять минут
     public void checkDeffered(final Timer timer) {
+	logger.INFO.log("ACTIVE sessions");
+	activeSessions.stream() //
+		.map(SoapSession::toString) //
+		.forEach(logger.INFO::log);
+	logger.INFO.log("DISABLED sessions");
+	deferredSessions.stream() //
+		.map(SoapSession::toString) //
+		.forEach(logger.INFO::log);
+
 	final int count = deferredSessions.size();
 	// проделать со стеком "плохих" соединений количество итераций
 	// соответствующее размеру этого стека.
@@ -181,7 +194,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 	    // ему ping
 	    final SoapSession ss = deferredSessions.removeFirst();
 	    try {
-		logger.FINE.log("TRYING TO ENABLE %1$s", ss);
+		logger.INFO.log("TRYING TO ENABLE %1$s", ss);
 		ss.ping();
 		// если ping прошел, то поставить соединение в голову стека
 		// "хороших" соединений
@@ -189,7 +202,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 		logger.INFO.log("IS ALIVE %1$s", ss);
 		logger.INFO.log("ENABLED %1$s", ss);
 	    } catch (final ConnectionException ignored) {
-		logger.FINE.log("FAIL TO ENABLE %1$s", ss);
+		logger.INFO.log("FAIL TO ENABLE %1$s", ss);
 		// если ping не прошел вернуть в стек "плохих" соединений
 		deferredSessions.addLast(ss);
 	    }
@@ -207,6 +220,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 		    final ConnectionImpl con = new ConnectionImpl(ss.getSoap(), ss.getWsdlLocation(),
 			    ss.getSessionId());
 		    logger.FINER.log("CONNECTION TAKEN %1$s", con);
+		    
 		    return con;
 		} catch (final ConnectionException e) {
 		    logger.WARNING.log("PING FAILED %1$s. Error message is '%2$s'", ss, e.getMessage());
