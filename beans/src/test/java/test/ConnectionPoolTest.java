@@ -23,12 +23,12 @@ public class ConnectionPoolTest extends ArquillianBaseTestCase {
 
     @Test
     public void testGetConnection() throws ConnectionException {
-//	Connection prev = null;
-	for (int i = 0; i < 6; i++)
+	Connection prev = null;
+	for (int i = 0; i < 20; i++)
 	    try (Connection conn1 = pool.getConnection()) {
 		assertThat(conn1, not(nullValue()));
-//		assertThat(conn1, is(not(prev)));
-//		prev = conn1;
+		assertThat(conn1, is(not(prev)));
+		prev = conn1;
 	    }
     }
 
