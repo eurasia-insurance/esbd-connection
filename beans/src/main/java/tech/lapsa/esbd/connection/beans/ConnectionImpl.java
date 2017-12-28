@@ -849,8 +849,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public Policy getPolicyByID(final int aPolicyID) {
-	// must return null on SoapFault
-	return session.call((soap, aSessionId) -> soap.getPolicyByID(aSessionId, aPolicyID), null);
+	return session.call((soap, aSessionId) -> soap.getPolicyByID(aSessionId, aPolicyID));
     }
 
     @Override
