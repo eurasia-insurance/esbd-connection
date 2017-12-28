@@ -72,7 +72,11 @@ public class SoapSession {
 	try {
 	    consumer.process(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
+	} catch (SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
+	    logger.WARN.log(e);
 	} catch (RuntimeException e) {
+	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
@@ -84,9 +88,11 @@ public class SoapSession {
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
 	    logger.WARN.log(e);
 	    return null;
 	} catch (RuntimeException e) {
+	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
@@ -98,9 +104,11 @@ public class SoapSession {
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
 	    logger.WARN.log(e);
 	    return defaultReturn;
 	} catch (RuntimeException e) {
+	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
