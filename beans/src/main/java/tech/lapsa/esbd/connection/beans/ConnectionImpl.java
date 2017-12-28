@@ -140,7 +140,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int getClassId(final int aClientId, final String aDate, final int aTFId) {
-	return session.call((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId));
+	return session.call((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId), 0);
     }
 
     @Override

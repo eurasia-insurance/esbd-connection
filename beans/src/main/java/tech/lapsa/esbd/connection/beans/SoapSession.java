@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.ejb.EJBException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import tech.lapsa.esbd.connection.ConnectionException;
 import tech.lapsa.esbd.connection.ConnectionPool;
@@ -59,21 +60,22 @@ public class SoapSession {
 
     @FunctionalInterface
     static interface SoapProcessable {
-	void process(IICWebServiceSoap soap, String aSession);
+	void process(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    }
+
+    @FunctionalInterface
+    static interface SoapCallable<R> {
+	R call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
     void process(SoapProcessable consumer) {
 	try {
 	    consumer.process(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
-	} catch (WebServiceException e) {
+	} catch (SOAPFaultException e) {
+	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
-    }
-
-    @FunctionalInterface
-    static interface SoapCallable<R> {
-	R call(IICWebServiceSoap soap, String aSession);
     }
 
     <R> R call(SoapCallable<R> consumer) {
@@ -81,8 +83,19 @@ public class SoapSession {
 	    final R res = consumer.call(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
-	} catch (WebServiceException e) {
+	} catch (SOAPFaultException e) {
+	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
+	}
+    }
+
+    <R> R call(SoapCallable<R> consumer, R defaultReturn) {
+	try {
+	    final R res = consumer.call(soap, sessionId);
+	    marker.mark(); // call is ok also session is ok too
+	    return res;
+	} catch (SOAPFaultException e) {
+	    return defaultReturn;
 	}
     }
 
