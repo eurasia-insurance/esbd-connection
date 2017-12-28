@@ -68,6 +68,11 @@ public class SoapSession {
 	R call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
+    @FunctionalInterface
+    static interface SoapCallableInt {
+	int call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    }
+
     void process(SoapProcessable consumer) {
 	try {
 	    consumer.process(soap, sessionId);
@@ -98,15 +103,15 @@ public class SoapSession {
 	}
     }
 
-    <R> R call(SoapCallable<R> consumer, R defaultReturn) {
+    int callInt(SoapCallableInt consumer) {
 	try {
-	    final R res = consumer.call(soap, sessionId);
+	    final int res = consumer.call(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.WARN.log(e);
-	    return defaultReturn;
+	    return 0;
 	} catch (RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
