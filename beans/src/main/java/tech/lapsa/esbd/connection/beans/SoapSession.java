@@ -139,15 +139,15 @@ public class SoapSession {
     }
 
     private synchronized void pingOrInitSession() throws ConnectionException {
-	logger.TRACE.log("PING SESSION %1$s", wsdlLocation);
+	logger.TRACE.log("%1$s PING OR INIT SESSION", wsdlLocation);
 
 	if (sessionId == null)
-	    logger.TRACE.log("NEW SESSION %1$s for user '%2$s'", wsdlLocation, userName);
+	    logger.TRACE.log("%1$s GENERATING NEW SESSION for user '%2$s'", wsdlLocation, userName);
 	else
-	    logger.TRACE.log("EXISTING SESSION %1$s with ID %2$s", wsdlLocation, sessionId);
+	    logger.TRACE.log("%1$s USING EXISTING SESSION ID %2$s", wsdlLocation, sessionId);
 
 	if (!marker.isExpired()) {
-	    logger.TRACE.log("SESSION IS NOT EXPIRED YET %1$s", wsdlLocation);
+	    logger.TRACE.log("%1$s SESSION IS NOT EXPIRED YET", wsdlLocation);
 	    return;
 	}
 
@@ -168,18 +168,18 @@ public class SoapSession {
 	    try {
 		checked = soap.sessionExists(sessionId, userName);
 	    } catch (WebServiceException e) {
-		logger.WARN.log("PING SESSION FAILED %1$s (%2$s)", wsdlLocation, e.getMessage());
+		logger.WARN.log("%1$s PING SESSION FAILED (%2$s)", wsdlLocation, e.getMessage());
 		throw MyExceptions.format(ConnectionException::new, "PING SESSION FAILED %1$s (%2$s)", wsdlLocation,
 			e.getMessage());
 	    }
 
 	    if (checked) {
-		logger.TRACE.log("SESSION IS OK %2$s", wsdlLocation, sessionId);
+		logger.TRACE.log("%1$s SESSION IS OK %2$s", wsdlLocation, sessionId);
 		marker.mark();
 		return;
 	    } else {
-		logger.TRACE.log("(%1$s) SESSION EXPIRED %2$s (%1$s)", wsdlLocation, sessionId);
-		logger.TRACE.log("(%1$s) RE-NEW SESSION for user '%2$s' (%1$s)", wsdlLocation, userName);
+		logger.TRACE.log("%1$s SESSION EXPIRED %2$s", wsdlLocation, sessionId);
+		logger.TRACE.log("%1$s RENEWAL SESSION IS REQUIRED for user '%2$s'", wsdlLocation, userName);
 		sessionId = null;
 		marker.expire();
 	    }
