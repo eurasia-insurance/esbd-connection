@@ -3,143 +3,120 @@ package tech.lapsa.esbd.connection.beans;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.Instant;
 import java.util.Map;
 
+import javax.ejb.EJBException;
 import javax.xml.ws.BindingProvider;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import javax.xml.ws.WebServiceException;
 
 import tech.lapsa.esbd.connection.ConnectionException;
+import tech.lapsa.esbd.connection.ConnectionPool;
 import tech.lapsa.esbd.jaxws.wsimport.IICWebService;
 import tech.lapsa.esbd.jaxws.wsimport.IICWebServiceSoap;
 import tech.lapsa.esbd.jaxws.wsimport.User;
 import tech.lapsa.java.commons.function.MyExceptions;
+import tech.lapsa.java.commons.function.MyStrings;
 import tech.lapsa.java.commons.logging.MyLogger;
 
 public class SoapSession {
-    private static final int PRIME = 23;
-    private static final int MULTIPLIER = PRIME;
+
+    private final MyLogger logger;
 
     private final URL wsdlLocation;
     private final String userName;
     private final String password;
-    private final MyLogger logger;
     private final int connectTimeoutMilis;
     private final int requestTimeoutMilis;
-    private final int reCheckEsbdSesionAliveTimeoutMilis;
+
+    private final InstantMarker marker;
 
     private IICWebService service;
     private IICWebServiceSoap soap;
     private String sessionId;
-    private Instant lastSessionCheckOKInstant;
-
-    @Override
-    public int hashCode() {
-	return new HashCodeBuilder(PRIME, MULTIPLIER)
-		.append(wsdlLocation)
-		.toHashCode();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-	if (other == null || other.getClass() != getClass())
-	    return false;
-	if (other == this)
-	    return true;
-	final SoapSession that = (SoapSession) other;
-	return new EqualsBuilder()
-		.append(wsdlLocation, that.wsdlLocation)
-		.isEquals();
-    }
 
     @Override
     public String toString() {
-	return String.format("%1$s('%2$s')", this.getClass().getSimpleName(), wsdlLocation.toString());
+	return wsdlLocation.toString();
     }
 
     public SoapSession(final URL wsdlLocation,
 	    final String userName,
 	    final String password,
-	    final MyLogger logger,
 	    final int connectTimeoutMilis,
 	    final int requestTimeoutMilis,
-	    final int reCheckEsbdSesionAliveTimeoutMilis) {
+	    final long reCheckEsbdSesionAliveTimeoutMilis) {
 	this.wsdlLocation = wsdlLocation;
 	this.userName = userName;
 	this.password = password;
-	this.logger = logger;
 	this.connectTimeoutMilis = connectTimeoutMilis;
 	this.requestTimeoutMilis = requestTimeoutMilis;
-	this.reCheckEsbdSesionAliveTimeoutMilis = reCheckEsbdSesionAliveTimeoutMilis;
+	this.marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
+	this.logger = MyLogger.newBuilder() //
+		.withNameOf(ConnectionPool.class) //
+		.addPrefix(MyStrings.format("* %1$s * ", wsdlLocation.toString()))
+		.build();
     }
 
-    public IICWebServiceSoap getSoap() throws ConnectionException {
-	initService();
-	initSoap();
-	return soap;
+    @FunctionalInterface
+    static interface SoapProcessable {
+	void process(IICWebServiceSoap soap, String aSession);
     }
 
-    public String getSessionId() throws ConnectionException {
-	initService();
-	initSoap();
-	initSession();
-	return sessionId;
+    void process(SoapProcessable consumer) {
+	try {
+	    consumer.process(soap, sessionId);
+	    marker.mark(); // call is ok also session is ok too
+	} catch (WebServiceException e) {
+	    throw new EJBException(e.getMessage());
+	}
+    }
+
+    @FunctionalInterface
+    static interface SoapCallable<R> {
+	R call(IICWebServiceSoap soap, String aSession);
+    }
+
+    <R> R call(SoapCallable<R> consumer) {
+	try {
+	    final R res = consumer.call(soap, sessionId);
+	    marker.mark(); // call is ok also session is ok too
+	    return res;
+	} catch (WebServiceException e) {
+	    throw new EJBException(e.getMessage());
+	}
     }
 
     public void ping() throws ConnectionException {
 	initService();
 	initSoap();
-	initSession();
-    }
-
-    public URL getWsdlLocation() {
-	return wsdlLocation;
-    }
-
-    public void reset() {
-	notChecked();
+	pingOrInitSession();
     }
 
     // PRIVATE
 
-    private synchronized void okChecked() {
-	lastSessionCheckOKInstant = Instant.now();
-    }
-
-    private synchronized void notChecked() {
-	lastSessionCheckOKInstant = null;
-    }
-
-    private synchronized boolean checkingExpired() {
-	return lastSessionCheckOKInstant == null
-		|| lastSessionCheckOKInstant.isBefore(Instant.now().minusMillis(reCheckEsbdSesionAliveTimeoutMilis));
-    }
-
     private void initService() throws ConnectionException {
 	if (service == null) {
 	    try {
-		logger.INFO.log("PING URL %1$s with TIMEOUT %2$s mills", wsdlLocation, connectTimeoutMilis);
+		logger.TRACE.log("PING URL with TIMEOUT %1$s mills", connectTimeoutMilis);
 		final URLConnection connection = wsdlLocation.openConnection();
 		connection.setConnectTimeout(connectTimeoutMilis);
 		connection.connect();
-		logger.INFO.log("PING URL SUCCESSFUL %1$s", wsdlLocation);
+		logger.TRACE.log("PING URL SUCCESSFUL");
 	    } catch (IOException e) {
-		logger.SEVERE.log("PING URL FAILED %1$s", wsdlLocation);
-		final ConnectionException ex = MyExceptions.format(ConnectionException::new, e,
-			"Failed to PING %1$s (%2$s)", wsdlLocation, e.getMessage());
-		logger.SEVERE.log(ex);
+		logger.WARN.log("PING URL FAILED (%1$s)", e.getMessage());
+		final ConnectionException ex //
+			= MyExceptions.format(ConnectionException::new, "PING URL FAILED %1$s (%2$s)", wsdlLocation,
+				e.getMessage());
 		throw ex;
 	    }
 	    try {
 		service = new IICWebService(wsdlLocation);
-		logger.TRACE.log("WS CREATED %1$s", wsdlLocation);
+		logger.TRACE.log("WS CREATED");
 	    } catch (final Exception e) {
-		logger.SEVERE.log("WS CREATION FAILED %1$s", wsdlLocation);
-		final ConnectionException ex = MyExceptions.format(ConnectionException::new, e,
-			"Failed initialize WS '%1$s' (%2$s)", IICWebService.class.getName(), e.getMessage());
-		logger.SEVERE.log(ex);
+		logger.WARN.log("WS CREATION FAILED (%1$s)", e.getMessage());
+		final ConnectionException ex //
+			= MyExceptions.format(ConnectionException::new, "WS CREATION FAILED '%1$s' (%2$s)",
+				wsdlLocation, e.getMessage());
 		throw ex;
 	    }
 	}
@@ -148,70 +125,71 @@ public class SoapSession {
     private void initSoap() throws ConnectionException {
 	try {
 	    if (soap == null) {
+		logger.TRACE.log("SOAP CREATING with TIMEOUT %1$s mills", connectTimeoutMilis);
 		soap = service.getIICWebServiceSoap();
-		logger.TRACE.log("SOAP CREATED %1$s", service.getWSDLDocumentLocation());
+		logger.TRACE.log("SOAP CREATED");
 		final Map<String, Object> context = ((BindingProvider) soap).getRequestContext();
 		context.put("com.sun.xml.internal.ws.connect.timeout", connectTimeoutMilis);
 		context.put("com.sun.xml.internal.ws.request.timeout", requestTimeoutMilis);
-		context.put("com.sun.xml.ws.request.timeout", requestTimeoutMilis);
-		context.put("com.sun.xml.ws.connect.timeout", connectTimeoutMilis);
 		context.put("javax.xml.ws.client.connectionTimeout", connectTimeoutMilis);
 		context.put("javax.xml.ws.client.receiveTimeout", requestTimeoutMilis);
-		context.put(BindingProviderProperties.REQUEST_TIMEOUT, requestTimeoutMilis);
 		context.put(BindingProviderProperties.CONNECT_TIMEOUT, connectTimeoutMilis);
+		context.put(BindingProviderProperties.REQUEST_TIMEOUT, requestTimeoutMilis);
 	    }
 	} catch (final Exception e) {
-	    logger.TRACE.log(e);
-	    final ConnectionException ex = MyExceptions.format(ConnectionException::new, e,
-		    "Failed initialize SOAP '%1$s' (%2$s)", service.getWSDLDocumentLocation(), e.getMessage());
-	    logger.SEVERE.log(ex);
+	    logger.WARN.log("SOAP CREATION FAILED (%1$s)", e.getMessage());
+	    final ConnectionException ex //
+		    = MyExceptions.format(ConnectionException::new, "SOAP CREATION FAILED %1$s (%2$s)", wsdlLocation,
+			    e.getMessage());
 	    throw ex;
 	}
     }
 
-    private void initSession() throws ConnectionException {
-	if (isSessionAvailable())
-	    return;
-	try {
-	    if (sessionId == null)
-		logger.INFO.log("NEW %1$s for user '%2$s'", this, userName);
-	    else
-		logger.INFO.log("RE-ESTABLISHED %1$s for user '%2$s'", this, userName);
+    private synchronized void pingOrInitSession() throws ConnectionException {
+	logger.TRACE.log("PING OR INIT SESSION");
 
-	    final User user = soap.authenticateUser(userName, password);
-	    sessionId = user.getSessionID();
-	    okChecked();
-	    logger.INFO.log("ESTABLISHED SUCCESSUFUL %1$s aSessionID = '%2$s'", this, sessionId);
-	} catch (final Exception e) {
-	    notChecked();
-	    final String message = String.format("FAILED TO ESTABLISH %1$s error message = '%2$s'", this,
-		    e.getMessage());
-	    throw new ConnectionException(message, e);
-	}
-    }
-
-    private synchronized boolean isSessionAvailable() throws ConnectionException {
-	// if sessionId is not set - false
 	if (sessionId == null)
-	    return false;
+	    logger.TRACE.log("GENERATING NEW SESSION for user '%1$s'", userName);
+	else
+	    logger.TRACE.log("USING EXISTING SESSION ID %1$s", sessionId);
 
-	// if not checked or last check OK is early than X time later - true
-	if (checkingExpired())
-	    return true;
+	if (!marker.isExpired()) {
+	    logger.TRACE.log("SESSION IS NOT EXPIRED YET");
+	    return;
+	}
 
-	notChecked();
-	try {
-	    final boolean checked = soap.sessionExists(sessionId, userName);
-	    if (checked)
-		okChecked();
-	    return checked;
-	} catch (final Exception e) {
-	    final String message = String.format("FAILED TO CHECK %1$s aSessionID = '%2$s' error message = '%3$s'",
-		    this, // 1
-		    sessionId, // 2
-		    e.getMessage()// 3
-	    );
-	    throw new ConnectionException(message, e);
+	while (true) {
+	    if (sessionId == null) {
+		final User user;
+		try {
+		    user = soap.authenticateUser(userName, password);
+		} catch (WebServiceException e) {
+		    marker.expire();
+		    throw MyExceptions.format(ConnectionException::new, "AUTHENTIFICATION FAILED for user '%1$s'",
+			    userName);
+		}
+		sessionId = user.getSessionID();
+	    }
+
+	    final boolean checked;
+	    try {
+		checked = soap.sessionExists(sessionId, userName);
+	    } catch (WebServiceException e) {
+		logger.WARN.log("PING SESSION FAILED (%1$s)", e.getMessage());
+		throw MyExceptions.format(ConnectionException::new, "PING SESSION FAILED %1$s (%2$s)", wsdlLocation,
+			e.getMessage());
+	    }
+
+	    if (checked) {
+		logger.TRACE.log("SESSION IS OK %1$s", sessionId);
+		marker.mark();
+		return;
+	    } else {
+		logger.TRACE.log("SESSION EXPIRED %1$s", sessionId);
+		logger.TRACE.log("RENEWAL SESSION IS REQUIRED for user '%1$s'", userName);
+		sessionId = null;
+		marker.expire();
+	    }
 	}
     }
 }

@@ -32,13 +32,6 @@
 			<scope>compile</scope>
 			<optional>false</optional>
 		</dependency>
-		<!-- external -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<scope>compile</scope>
-			<optional>false</optional>
-		</dependency>
 		<!-- JavaEE -->
 		<dependency>
 			<groupId>javax.enterprise</groupId>
