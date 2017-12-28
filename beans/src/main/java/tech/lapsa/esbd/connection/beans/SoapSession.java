@@ -10,6 +10,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 
 import tech.lapsa.esbd.connection.ConnectionException;
+import tech.lapsa.esbd.connection.ConnectionPool;
 import tech.lapsa.esbd.jaxws.wsimport.IICWebService;
 import tech.lapsa.esbd.jaxws.wsimport.IICWebServiceSoap;
 import tech.lapsa.esbd.jaxws.wsimport.User;
@@ -51,7 +52,7 @@ public class SoapSession {
 	this.requestTimeoutMilis = requestTimeoutMilis;
 	this.marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
 	this.logger = MyLogger.newBuilder() //
-		.withNameOf(SoapSession.class) //
+		.withNameOf(ConnectionPool.class) //
 		.addPrefix(MyStrings.format("* %1$s * ", wsdlLocation.toString()))
 		.build();
     }
