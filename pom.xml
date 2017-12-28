@@ -76,7 +76,7 @@
 	<scm>
 		<connection>scm:git:https://gitlab.lapsa.tech/lapsa/esbd/connection.git</connection>
 		<developerConnection>scm:git:https://gitlab.lapsa.tech/lapsa/esbd/connection.git</developerConnection>
-		<tag>v1.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
