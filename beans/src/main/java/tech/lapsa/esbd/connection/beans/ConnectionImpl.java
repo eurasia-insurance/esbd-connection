@@ -140,6 +140,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int getClassId(final int aClientId, final String aDate, final int aTFId) {
+	// must return '0' on SoapFault
 	return session.call((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId), 0);
     }
 
@@ -848,7 +849,8 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public Policy getPolicyByID(final int aPolicyID) {
-	return session.call((soap, aSessionId) -> soap.getPolicyByID(aSessionId, aPolicyID));
+	// must return null on SoapFault
+	return session.call((soap, aSessionId) -> soap.getPolicyByID(aSessionId, aPolicyID), null);
     }
 
     @Override
