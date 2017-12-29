@@ -105,7 +105,7 @@ final class ConnectionImpl implements Connection {
 
     ConnectionImpl(final SoapSession session) {
 	this.session = session;
-	this.logger.TRACE.log("CONNECTION TAKEN %1$s", session);
+	logger.TRACE.log("CONNECTION TAKEN %1$s", session);
     }
 
     @Override

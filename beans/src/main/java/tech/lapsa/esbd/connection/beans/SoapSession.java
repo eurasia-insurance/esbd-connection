@@ -51,8 +51,8 @@ public class SoapSession {
 	this.password = password;
 	this.connectTimeoutMilis = connectTimeoutMilis;
 	this.requestTimeoutMilis = requestTimeoutMilis;
-	this.marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
-	this.logger = MyLogger.newBuilder() //
+	marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
+	logger = MyLogger.newBuilder() //
 		.withNameOf(ConnectionPool.class) //
 		.addPrefix(MyStrings.format("* %1$s * ", wsdlLocation.toString()))
 		.build();
@@ -73,46 +73,46 @@ public class SoapSession {
 	int call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
-    void process(SoapProcessable consumer) {
+    void process(final SoapProcessable consumer) {
 	try {
 	    consumer.process(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
-	} catch (SOAPFaultException e) {
+	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.WARN.log(e);
-	} catch (RuntimeException e) {
+	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
 
-    <R> R call(SoapCallable<R> consumer) {
+    <R> R call(final SoapCallable<R> consumer) {
 	try {
 	    final R res = consumer.call(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
-	} catch (SOAPFaultException e) {
+	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.WARN.log(e);
 	    return null;
-	} catch (RuntimeException e) {
+	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
 
-    int callInt(SoapCallableInt consumer) {
+    int callInt(final SoapCallableInt consumer) {
 	try {
 	    final int res = consumer.call(soap, sessionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
-	} catch (SOAPFaultException e) {
+	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.WARN.log(e);
 	    return 0;
-	} catch (RuntimeException e) {
+	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
@@ -135,7 +135,7 @@ public class SoapSession {
 		connection.setConnectTimeout(connectTimeoutMilis);
 		connection.connect();
 		logger.TRACE.log("PING URL SUCCESSFUL");
-	    } catch (IOException e) {
+	    } catch (final IOException e) {
 		logger.WARN.log("PING URL FAILED (%1$s)", e.getMessage());
 		final ConnectionException ex //
 			= MyExceptions.format(ConnectionException::new, "PING URL FAILED %1$s (%2$s)", wsdlLocation,
@@ -196,7 +196,7 @@ public class SoapSession {
 		final User user;
 		try {
 		    user = soap.authenticateUser(userName, password);
-		} catch (WebServiceException e) {
+		} catch (final WebServiceException e) {
 		    marker.expire();
 		    throw MyExceptions.format(ConnectionException::new, "AUTHENTIFICATION FAILED for user '%1$s'",
 			    userName);
@@ -207,7 +207,7 @@ public class SoapSession {
 	    final boolean checked;
 	    try {
 		checked = soap.sessionExists(sessionId, userName);
-	    } catch (WebServiceException e) {
+	    } catch (final WebServiceException e) {
 		logger.WARN.log("PING SESSION FAILED (%1$s)", e.getMessage());
 		throw MyExceptions.format(ConnectionException::new, "PING SESSION FAILED %1$s (%2$s)", wsdlLocation,
 			e.getMessage());
