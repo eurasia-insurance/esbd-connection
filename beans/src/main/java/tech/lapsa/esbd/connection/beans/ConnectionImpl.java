@@ -105,7 +105,7 @@ final class ConnectionImpl implements Connection {
 
     ConnectionImpl(final SoapSession session) {
 	this.session = session;
-	this.logger.TRACE.log("CONNECTION TAKEN %1$s", session);
+	logger.TRACE.log("CONNECTION TAKEN %1$s", session);
     }
 
     @Override
@@ -115,22 +115,22 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int calculateContractPremium(final String aXml) {
-	return session.call((soap, aSessionId) -> soap.calculateContractPremium(aSessionId, aXml));
+	return session.callInt((soap, aSessionId) -> soap.calculateContractPremium(aSessionId, aXml));
     }
 
     @Override
     public int calculatePolicyPremium(final Policy aPolicy) {
-	return session.call((soap, aSessionId) -> soap.calculatePolicyPremium(aSessionId, aPolicy));
+	return session.callInt((soap, aSessionId) -> soap.calculatePolicyPremium(aSessionId, aPolicy));
     }
 
     @Override
     public void deleteNewUserRequest(final int aRequestID) {
-	session.process((soap, aSessionId) -> soap.deleteNewUserRequest(aSessionId, aRequestID));
+	session.callVoid((soap, aSessionId) -> soap.deleteNewUserRequest(aSessionId, aRequestID));
     }
 
     @Override
     public void deletePolicy(final int aPolicyID) {
-	session.process((soap, aSessionId) -> soap.deletePolicy(aSessionId, aPolicyID));
+	session.callVoid((soap, aSessionId) -> soap.deletePolicy(aSessionId, aPolicyID));
     }
 
     @Override
@@ -140,7 +140,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int getClassId(final int aClientId, final String aDate, final int aTFId) {
-	return session.call((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId));
+	return session.callInt((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId));
     }
 
     @Override
@@ -919,7 +919,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int getVoitureModelIdByName(final String aVoitureMarkName, final String aVoitureModelName) {
-	return session.call(
+	return session.callInt(
 		(soap, aSessionId) -> soap.getVoitureModelIdByName(aSessionId, aVoitureMarkName, aVoitureModelName));
     }
 
@@ -1113,7 +1113,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public void setInsuranceEventMistake(final int aInsEventID, final String aDate) {
-	session.process((soap, aSessionId) -> soap.setInsuranceEventMistake(aSessionId, aInsEventID, aDate));
+	session.callVoid((soap, aSessionId) -> soap.setInsuranceEventMistake(aSessionId, aInsEventID, aDate));
     }
 
     @Override
@@ -1128,7 +1128,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public void setPerpetratorMistake(final int aPerpetratorID, final String aDate) {
-	session.process((soap, aSessionId) -> soap.setPerpetratorMistake(aSessionId, aPerpetratorID, aDate));
+	session.callVoid((soap, aSessionId) -> soap.setPerpetratorMistake(aSessionId, aPerpetratorID, aDate));
     }
 
     @Override
@@ -1151,7 +1151,7 @@ final class ConnectionImpl implements Connection {
     @Override
     public int setPolicyRescindingReason(final int aPolicyId, final int aRescindingReasonId,
 	    final String aRescindingDate) {
-	return session.call((soap, aSessionId) -> soap.setPolicyRescindingReason(aSessionId, aPolicyId,
+	return session.callInt((soap, aSessionId) -> soap.setPolicyRescindingReason(aSessionId, aPolicyId,
 		aRescindingReasonId, aRescindingDate));
     }
 

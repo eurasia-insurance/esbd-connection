@@ -8,7 +8,7 @@ public final class InstantMarker {
 
     private Instant marker;
 
-    public InstantMarker(long timeout) {
+    public InstantMarker(final long timeout) {
 	this.timeout = timeout;
     }
 
