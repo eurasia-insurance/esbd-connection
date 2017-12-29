@@ -83,7 +83,7 @@ final class SoapSession {
 	    return res;
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
-	    logger.WARN.log(e);
+	    logger.DEBUG.log(e);
 	    return null;
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
@@ -98,7 +98,7 @@ final class SoapSession {
 	    marker.mark(); // call is ok also session is ok too
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
-	    logger.WARN.log(e);
+	    logger.DEBUG.log(e);
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
@@ -113,7 +113,7 @@ final class SoapSession {
 	    return res;
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
-	    logger.WARN.log(e);
+	    logger.DEBUG.log(e);
 	    return 0;
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
