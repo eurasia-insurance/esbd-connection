@@ -3,6 +3,7 @@ package tech.lapsa.esbd.connection.beans;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Instant;
 import java.util.Map;
 
 import javax.ejb.EJBException;
@@ -18,6 +19,7 @@ import tech.lapsa.esbd.jaxws.wsimport.User;
 import tech.lapsa.java.commons.function.MyExceptions;
 import tech.lapsa.java.commons.function.MyStrings;
 import tech.lapsa.java.commons.logging.MyLogger;
+import tech.lapsa.java.commons.time.MyTemporals;
 
 public class SoapSession {
 
@@ -33,7 +35,8 @@ public class SoapSession {
 
     private IICWebService service;
     private IICWebServiceSoap soap;
-    private String sessionId;
+
+    private SessionId sessionId;
 
     @Override
     public String toString() {
@@ -75,7 +78,7 @@ public class SoapSession {
 
     void process(final SoapProcessable consumer) {
 	try {
-	    consumer.process(soap, sessionId);
+	    consumer.process(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
@@ -89,7 +92,7 @@ public class SoapSession {
 
     <R> R call(final SoapCallable<R> consumer) {
 	try {
-	    final R res = consumer.call(soap, sessionId);
+	    final R res = consumer.call(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (final SOAPFaultException e) {
@@ -105,7 +108,7 @@ public class SoapSession {
 
     int callInt(final SoapCallableInt consumer) {
 	try {
-	    final int res = consumer.call(soap, sessionId);
+	    final int res = consumer.call(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (final SOAPFaultException e) {
@@ -178,16 +181,32 @@ public class SoapSession {
 	}
     }
 
+    private static class SessionId {
+
+	private final String sesionId;
+	private final Instant created;
+
+	SessionId(final String sessionId) {
+	    this.sesionId = sessionId;
+	    this.created = Instant.now();
+	}
+
+	@Override
+	public String toString() {
+	    return MyStrings.format("'%1$s' @ [%2$s]", sesionId, MyTemporals.instant().toLocalDateTime(created));
+	}
+    }
+
     private synchronized void pingOrInitSession() throws ConnectionException {
 	logger.TRACE.log("PING OR INIT SESSION");
 
 	if (sessionId == null)
 	    logger.TRACE.log("GENERATING NEW SESSION for user '%1$s'", userName);
 	else
-	    logger.TRACE.log("USING EXISTING SESSION ID %1$s", sessionId);
+	    logger.TRACE.log("USING EXISTING SESSION %1$s", sessionId);
 
 	if (!marker.isExpired()) {
-	    logger.TRACE.log("SESSION IS NOT EXPIRED YET");
+	    logger.TRACE.log("SESSION IS NOT EXPIRED YET %1$s", sessionId);
 	    return;
 	}
 
@@ -201,12 +220,12 @@ public class SoapSession {
 		    throw MyExceptions.format(ConnectionException::new, "AUTHENTIFICATION FAILED for user '%1$s'",
 			    userName);
 		}
-		sessionId = user.getSessionID();
+		sessionId = new SessionId(user.getSessionID());
 	    }
 
 	    final boolean checked;
 	    try {
-		checked = soap.sessionExists(sessionId, userName);
+		checked = soap.sessionExists(sessionId.sesionId, userName);
 	    } catch (final WebServiceException e) {
 		logger.WARN.log("PING SESSION FAILED (%1$s)", e.getMessage());
 		throw MyExceptions.format(ConnectionException::new, "PING SESSION FAILED %1$s (%2$s)", wsdlLocation,
@@ -218,8 +237,8 @@ public class SoapSession {
 		marker.mark();
 		return;
 	    } else {
-		logger.TRACE.log("SESSION EXPIRED %1$s", sessionId);
-		logger.TRACE.log("RENEWAL SESSION IS REQUIRED for user '%1$s'", userName);
+		logger.TRACE.log("SESSION IS EXPIRED %1$s", sessionId);
+		logger.TRACE.log("SESSION RENEWAL IS REQUIRED %1$s", sessionId);
 		sessionId = null;
 		marker.expire();
 	    }
