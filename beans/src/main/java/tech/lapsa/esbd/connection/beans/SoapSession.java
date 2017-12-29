@@ -98,7 +98,7 @@ final class SoapSession {
 	    marker.mark(); // call is ok also session is ok too
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
-	    logger.DEBUG.log(e.getMessage());
+	    logger.SEVERE.log(e.getMessage());
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
