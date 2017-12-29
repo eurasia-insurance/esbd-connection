@@ -91,7 +91,7 @@ public class ConnectionPoolBean implements ConnectionPool {
     }
 
     private void checkActive() {
-	int size = activeSessions.size();
+	final int size = activeSessions.size();
 	if (size == 0)
 	    return;
 	for (int i = 0; i < size; i++) {
@@ -103,7 +103,7 @@ public class ConnectionPoolBean implements ConnectionPool {
     }
 
     private void checkDisabled() {
-	int size = disabledSessions.size();
+	final int size = disabledSessions.size();
 	if (size == 0)
 	    return;
 	for (int i = 0; i < size; i++) {

@@ -3,11 +3,13 @@ package tech.lapsa.esbd.connection.beans;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Instant;
 import java.util.Map;
 
 import javax.ejb.EJBException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import tech.lapsa.esbd.connection.ConnectionException;
 import tech.lapsa.esbd.connection.ConnectionPool;
@@ -17,8 +19,9 @@ import tech.lapsa.esbd.jaxws.wsimport.User;
 import tech.lapsa.java.commons.function.MyExceptions;
 import tech.lapsa.java.commons.function.MyStrings;
 import tech.lapsa.java.commons.logging.MyLogger;
+import tech.lapsa.java.commons.time.MyTemporals;
 
-public class SoapSession {
+final class SoapSession {
 
     private final MyLogger logger;
 
@@ -32,7 +35,8 @@ public class SoapSession {
 
     private IICWebService service;
     private IICWebServiceSoap soap;
-    private String sessionId;
+
+    private SessionId sessionId;
 
     @Override
     public String toString() {
@@ -50,38 +54,70 @@ public class SoapSession {
 	this.password = password;
 	this.connectTimeoutMilis = connectTimeoutMilis;
 	this.requestTimeoutMilis = requestTimeoutMilis;
-	this.marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
-	this.logger = MyLogger.newBuilder() //
+	marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
+	logger = MyLogger.newBuilder() //
 		.withNameOf(ConnectionPool.class) //
 		.addPrefix(MyStrings.format("* %1$s * ", wsdlLocation.toString()))
 		.build();
     }
 
     @FunctionalInterface
-    static interface SoapProcessable {
-	void process(IICWebServiceSoap soap, String aSession);
+    static interface SoapCallable {
+	void call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
-    void process(SoapProcessable consumer) {
+    @FunctionalInterface
+    static interface SoapSupplier<R> {
+	R get(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    }
+
+    @FunctionalInterface
+    static interface SoapIntSupplier {
+	int getAsInt(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    }
+
+    <R> R call(final SoapSupplier<R> supplier) {
 	try {
-	    consumer.process(soap, sessionId);
+	    final R res = supplier.get(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
-	} catch (WebServiceException e) {
+	    return res;
+	} catch (final SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
+	    logger.DEBUG.log(e.getMessage());
+	    return null;
+	} catch (final RuntimeException e) {
+	    marker.expire(); // call is not ok
+	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
 
-    @FunctionalInterface
-    static interface SoapCallable<R> {
-	R call(IICWebServiceSoap soap, String aSession);
+    void callVoid(final SoapCallable consumer) {
+	try {
+	    consumer.call(soap, sessionId.sesionId);
+	    marker.mark(); // call is ok also session is ok too
+	} catch (final SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
+	    logger.SEVERE.log(e.getMessage());
+	} catch (final RuntimeException e) {
+	    marker.expire(); // call is not ok
+	    logger.WARN.log(e);
+	    throw new EJBException(e.getMessage());
+	}
     }
 
-    <R> R call(SoapCallable<R> consumer) {
+    int callInt(final SoapIntSupplier consumer) {
 	try {
-	    final R res = consumer.call(soap, sessionId);
+	    final int res = consumer.getAsInt(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
-	} catch (WebServiceException e) {
+	} catch (final SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
+	    logger.DEBUG.log(e.getMessage());
+	    return 0;
+	} catch (final RuntimeException e) {
+	    marker.expire(); // call is not ok
+	    logger.WARN.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
@@ -102,7 +138,7 @@ public class SoapSession {
 		connection.setConnectTimeout(connectTimeoutMilis);
 		connection.connect();
 		logger.TRACE.log("PING URL SUCCESSFUL");
-	    } catch (IOException e) {
+	    } catch (final IOException e) {
 		logger.WARN.log("PING URL FAILED (%1$s)", e.getMessage());
 		final ConnectionException ex //
 			= MyExceptions.format(ConnectionException::new, "PING URL FAILED %1$s (%2$s)", wsdlLocation,
@@ -145,16 +181,32 @@ public class SoapSession {
 	}
     }
 
+    private static class SessionId {
+
+	private final String sesionId;
+	private final Instant created;
+
+	private SessionId(final String sessionId) {
+	    this.sesionId = sessionId;
+	    this.created = Instant.now();
+	}
+
+	@Override
+	public String toString() {
+	    return MyStrings.format("'%1$s' @ [%2$s]", sesionId, MyTemporals.instant().toLocalDateTime(created));
+	}
+    }
+
     private synchronized void pingOrInitSession() throws ConnectionException {
 	logger.TRACE.log("PING OR INIT SESSION");
 
 	if (sessionId == null)
 	    logger.TRACE.log("GENERATING NEW SESSION for user '%1$s'", userName);
 	else
-	    logger.TRACE.log("USING EXISTING SESSION ID %1$s", sessionId);
+	    logger.TRACE.log("USING EXISTING SESSION %1$s", sessionId);
 
 	if (!marker.isExpired()) {
-	    logger.TRACE.log("SESSION IS NOT EXPIRED YET");
+	    logger.TRACE.log("SESSION IS NOT EXPIRED YET %1$s", sessionId);
 	    return;
 	}
 
@@ -163,18 +215,18 @@ public class SoapSession {
 		final User user;
 		try {
 		    user = soap.authenticateUser(userName, password);
-		} catch (WebServiceException e) {
+		} catch (final WebServiceException e) {
 		    marker.expire();
 		    throw MyExceptions.format(ConnectionException::new, "AUTHENTIFICATION FAILED for user '%1$s'",
 			    userName);
 		}
-		sessionId = user.getSessionID();
+		sessionId = new SessionId(user.getSessionID());
 	    }
 
 	    final boolean checked;
 	    try {
-		checked = soap.sessionExists(sessionId, userName);
-	    } catch (WebServiceException e) {
+		checked = soap.sessionExists(sessionId.sesionId, userName);
+	    } catch (final WebServiceException e) {
 		logger.WARN.log("PING SESSION FAILED (%1$s)", e.getMessage());
 		throw MyExceptions.format(ConnectionException::new, "PING SESSION FAILED %1$s (%2$s)", wsdlLocation,
 			e.getMessage());
@@ -185,8 +237,8 @@ public class SoapSession {
 		marker.mark();
 		return;
 	    } else {
-		logger.TRACE.log("SESSION EXPIRED %1$s", sessionId);
-		logger.TRACE.log("RENEWAL SESSION IS REQUIRED for user '%1$s'", userName);
+		logger.TRACE.log("SESSION IS EXPIRED %1$s", sessionId);
+		logger.TRACE.log("SESSION RENEWAL IS REQUIRED %1$s", sessionId);
 		sessionId = null;
 		marker.expire();
 	    }
