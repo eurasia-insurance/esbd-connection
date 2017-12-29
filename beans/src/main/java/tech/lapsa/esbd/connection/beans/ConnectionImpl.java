@@ -125,12 +125,12 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public void deleteNewUserRequest(final int aRequestID) {
-	session.process((soap, aSessionId) -> soap.deleteNewUserRequest(aSessionId, aRequestID));
+	session.callVoid((soap, aSessionId) -> soap.deleteNewUserRequest(aSessionId, aRequestID));
     }
 
     @Override
     public void deletePolicy(final int aPolicyID) {
-	session.process((soap, aSessionId) -> soap.deletePolicy(aSessionId, aPolicyID));
+	session.callVoid((soap, aSessionId) -> soap.deletePolicy(aSessionId, aPolicyID));
     }
 
     @Override
@@ -1113,7 +1113,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public void setInsuranceEventMistake(final int aInsEventID, final String aDate) {
-	session.process((soap, aSessionId) -> soap.setInsuranceEventMistake(aSessionId, aInsEventID, aDate));
+	session.callVoid((soap, aSessionId) -> soap.setInsuranceEventMistake(aSessionId, aInsEventID, aDate));
     }
 
     @Override
@@ -1128,7 +1128,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public void setPerpetratorMistake(final int aPerpetratorID, final String aDate) {
-	session.process((soap, aSessionId) -> soap.setPerpetratorMistake(aSessionId, aPerpetratorID, aDate));
+	session.callVoid((soap, aSessionId) -> soap.setPerpetratorMistake(aSessionId, aPerpetratorID, aDate));
     }
 
     @Override

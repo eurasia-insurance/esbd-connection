@@ -21,7 +21,7 @@ import tech.lapsa.java.commons.function.MyStrings;
 import tech.lapsa.java.commons.logging.MyLogger;
 import tech.lapsa.java.commons.time.MyTemporals;
 
-public class SoapSession {
+final class SoapSession {
 
     private final MyLogger logger;
 
@@ -62,37 +62,23 @@ public class SoapSession {
     }
 
     @FunctionalInterface
-    static interface SoapProcessable {
-	void process(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    static interface SoapCallable {
+	void call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
     @FunctionalInterface
-    static interface SoapCallable<R> {
-	R call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    static interface SoapSupplier<R> {
+	R get(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
     @FunctionalInterface
-    static interface SoapCallableInt {
-	int call(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    static interface SoapIntSupplier {
+	int getAsInt(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
-    void process(final SoapProcessable consumer) {
+    <R> R call(final SoapSupplier<R> supplier) {
 	try {
-	    consumer.process(soap, sessionId.sesionId);
-	    marker.mark(); // call is ok also session is ok too
-	} catch (final SOAPFaultException e) {
-	    marker.mark(); // call is ok also session is ok too
-	    logger.WARN.log(e);
-	} catch (final RuntimeException e) {
-	    marker.expire(); // call is not ok
-	    logger.WARN.log(e);
-	    throw new EJBException(e.getMessage());
-	}
-    }
-
-    <R> R call(final SoapCallable<R> consumer) {
-	try {
-	    final R res = consumer.call(soap, sessionId.sesionId);
+	    final R res = supplier.get(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (final SOAPFaultException e) {
@@ -106,9 +92,23 @@ public class SoapSession {
 	}
     }
 
-    int callInt(final SoapCallableInt consumer) {
+    void callVoid(final SoapCallable consumer) {
 	try {
-	    final int res = consumer.call(soap, sessionId.sesionId);
+	    consumer.call(soap, sessionId.sesionId);
+	    marker.mark(); // call is ok also session is ok too
+	} catch (final SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
+	    logger.WARN.log(e);
+	} catch (final RuntimeException e) {
+	    marker.expire(); // call is not ok
+	    logger.WARN.log(e);
+	    throw new EJBException(e.getMessage());
+	}
+    }
+
+    int callInt(final SoapIntSupplier consumer) {
+	try {
+	    final int res = consumer.getAsInt(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (final SOAPFaultException e) {
@@ -186,7 +186,7 @@ public class SoapSession {
 	private final String sesionId;
 	private final Instant created;
 
-	SessionId(final String sessionId) {
+	private SessionId(final String sessionId) {
 	    this.sesionId = sessionId;
 	    this.created = Instant.now();
 	}
