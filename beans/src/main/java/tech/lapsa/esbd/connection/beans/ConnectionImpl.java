@@ -115,12 +115,12 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int calculateContractPremium(final String aXml) {
-	return session.callInt((soap, aSessionId) -> soap.calculateContractPremium(aSessionId, aXml));
+	return session.callInt((soap, aSessionId) -> soap.calculateContractPremium(aSessionId, aXml), 0);
     }
 
     @Override
     public int calculatePolicyPremium(final Policy aPolicy) {
-	return session.callInt((soap, aSessionId) -> soap.calculatePolicyPremium(aSessionId, aPolicy));
+	return session.callInt((soap, aSessionId) -> soap.calculatePolicyPremium(aSessionId, aPolicy), 0);
     }
 
     @Override
@@ -140,7 +140,7 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public int getClassId(final int aClientId, final String aDate, final int aTFId) {
-	return session.callInt((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId));
+	return session.callInt((soap, aSessionId) -> soap.getClassId(aSessionId, aClientId, aDate, aTFId), 0);
     }
 
     @Override
@@ -920,7 +920,7 @@ final class ConnectionImpl implements Connection {
     @Override
     public int getVoitureModelIdByName(final String aVoitureMarkName, final String aVoitureModelName) {
 	return session.callInt(
-		(soap, aSessionId) -> soap.getVoitureModelIdByName(aSessionId, aVoitureMarkName, aVoitureModelName));
+		(soap, aSessionId) -> soap.getVoitureModelIdByName(aSessionId, aVoitureMarkName, aVoitureModelName), 0);
     }
 
     @Override
@@ -1152,7 +1152,7 @@ final class ConnectionImpl implements Connection {
     public int setPolicyRescindingReason(final int aPolicyId, final int aRescindingReasonId,
 	    final String aRescindingDate) {
 	return session.callInt((soap, aSessionId) -> soap.setPolicyRescindingReason(aSessionId, aPolicyId,
-		aRescindingReasonId, aRescindingDate));
+		aRescindingReasonId, aRescindingDate), 0);
     }
 
     @Override

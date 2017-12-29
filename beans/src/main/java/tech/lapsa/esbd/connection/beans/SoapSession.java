@@ -106,7 +106,7 @@ final class SoapSession {
 	}
     }
 
-    int callInt(final SoapIntSupplier consumer) {
+    int callInt(final SoapIntSupplier consumer, int defaultReturn) {
 	try {
 	    final int res = consumer.getAsInt(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
