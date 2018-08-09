@@ -89,12 +89,15 @@ import tech.lapsa.esbd.jaxws.wsimport.NewUserRequest;
 import tech.lapsa.esbd.jaxws.wsimport.Policy;
 import tech.lapsa.esbd.jaxws.wsimport.REQUEST;
 import tech.lapsa.esbd.jaxws.wsimport.TF;
+import tech.lapsa.esbd.jaxws.wsimport.User;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL;
 import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
 
 public interface Connection extends AutoCloseable {
 
+    User currentUser();
+    
     @Override
     void close() throws ConnectionException;
 
