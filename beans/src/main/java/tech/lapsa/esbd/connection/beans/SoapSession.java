@@ -84,10 +84,12 @@ final class SoapSession {
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.DEBUG.log(e.getMessage());
+	    logger.TRACE.log(e);
 	    return null;
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
+	    logger.TRACE.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
@@ -99,9 +101,11 @@ final class SoapSession {
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.SEVERE.log(e.getMessage());
+	    logger.TRACE.log(e);
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
+	    logger.TRACE.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
@@ -113,11 +117,12 @@ final class SoapSession {
 	    return res;
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
-	    logger.DEBUG.log(e.getMessage());
+	    logger.TRACE.log(e);
 	    return 0;
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
+	    logger.TRACE.log(e);
 	    throw new EJBException(e.getMessage());
 	}
     }
@@ -140,6 +145,7 @@ final class SoapSession {
 		logger.TRACE.log("PING URL SUCCESSFUL");
 	    } catch (final IOException e) {
 		logger.WARN.log("PING URL FAILED (%1$s)", e.getMessage());
+		logger.TRACE.log(e);
 		final ConnectionException ex //
 			= MyExceptions.format(ConnectionException::new, "PING URL FAILED %1$s (%2$s)", wsdlLocation,
 				e.getMessage());
@@ -150,6 +156,7 @@ final class SoapSession {
 		logger.TRACE.log("WS CREATED");
 	    } catch (final Exception e) {
 		logger.WARN.log("WS CREATION FAILED (%1$s)", e.getMessage());
+		logger.TRACE.log(e);
 		final ConnectionException ex //
 			= MyExceptions.format(ConnectionException::new, "WS CREATION FAILED '%1$s' (%2$s)",
 				wsdlLocation, e.getMessage());
@@ -174,6 +181,7 @@ final class SoapSession {
 	    }
 	} catch (final Exception e) {
 	    logger.WARN.log("SOAP CREATION FAILED (%1$s)", e.getMessage());
+	    logger.TRACE.log(e);
 	    final ConnectionException ex //
 		    = MyExceptions.format(ConnectionException::new, "SOAP CREATION FAILED %1$s (%2$s)", wsdlLocation,
 			    e.getMessage());
@@ -216,6 +224,7 @@ final class SoapSession {
 		try {
 		    user = soap.authenticateUser(userName, password);
 		} catch (final WebServiceException e) {
+		    logger.TRACE.log(e);
 		    marker.expire();
 		    throw MyExceptions.format(ConnectionException::new, "AUTHENTIFICATION FAILED for user '%1$s'",
 			    userName);
@@ -228,6 +237,7 @@ final class SoapSession {
 		checked = soap.sessionExists(sessionId.sesionId, userName);
 	    } catch (final WebServiceException e) {
 		logger.WARN.log("PING SESSION FAILED (%1$s)", e.getMessage());
+		logger.TRACE.log(e);
 		throw MyExceptions.format(ConnectionException::new, "PING SESSION FAILED %1$s (%2$s)", wsdlLocation,
 			e.getMessage());
 	    }
