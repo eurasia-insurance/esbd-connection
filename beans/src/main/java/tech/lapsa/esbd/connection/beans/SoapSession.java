@@ -38,6 +38,8 @@ final class SoapSession {
 
     private SessionId sessionId;
 
+    private User user;
+
     @Override
     public String toString() {
 	return wsdlLocation.toString();
@@ -133,6 +135,10 @@ final class SoapSession {
 	pingOrInitSession();
     }
 
+    protected User getUser() {
+	return user;
+    }
+
     // PRIVATE
 
     private void initService() throws ConnectionException {
@@ -220,7 +226,7 @@ final class SoapSession {
 
 	while (true) {
 	    if (sessionId == null) {
-		final User user;
+		// final User user;
 		try {
 		    user = soap.authenticateUser(userName, password);
 		} catch (final WebServiceException e) {
