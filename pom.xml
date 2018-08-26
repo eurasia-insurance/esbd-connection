@@ -9,7 +9,7 @@
 
 	<groupId>tech.lapsa.esbd</groupId>
 	<artifactId>esbd-connection-root</artifactId>
-	<version>1.3.3</version>
+	<version>1.3.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>ESBD Lib : Connection</name>
@@ -76,7 +76,7 @@
 	<scm>
 		<connection>scm:git:https://gitlab.lapsa.tech/lapsa/esbd/connection.git</connection>
 		<developerConnection>scm:git:https://gitlab.lapsa.tech/lapsa/esbd/connection.git</developerConnection>
-		<tag>v1.3.3</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
