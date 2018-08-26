@@ -12,13 +12,13 @@ import tech.lapsa.esbd.connection.ConnectionException;
 import tech.lapsa.esbd.connection.ConnectionPool;
 
 public class ConnectionPoolLongTest
-	extends ArquillianBaseTestCase //
+//	extends ArquillianBaseTestCase //
 {
 
     @Inject
     private ConnectionPool pool;
 
-    @Test
+//    @Test
     public void longTest() throws InterruptedException {
 	for (int i = 0; i < 1000; i++) {
 	    try (Connection conn1 = pool.getConnection()) {
