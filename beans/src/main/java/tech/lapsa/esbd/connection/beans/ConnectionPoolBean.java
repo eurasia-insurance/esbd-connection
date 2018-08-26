@@ -87,20 +87,22 @@ public class ConnectionPoolBean implements ConnectionPool {
 	    logger.INFO.log("CHECKING %1$s...", session);
 	    try {
 		session.ping();
-		synchronized (activeSessions) {
-		    if (!activeSessions.contains(session)) {
-			activeSessions.add(session);
-			logger.INFO.log("ENABLING %1$s", session);
+		if (!activeSessions.contains(session))
+		    synchronized (activeSessions) {
+			if (!activeSessions.contains(session)) {
+			    activeSessions.add(session);
+			    logger.INFO.log("ENABLING %1$s", session);
+			}
 		    }
-		}
 	    } catch (Exception e) {
 		logger.FINE.log(e);
-		synchronized (activeSessions) {
-		    if (activeSessions.contains(session)) {
-			activeSessions.remove(session);
-			logger.WARN.log("DISABLING %1$s...", session);
+		if (activeSessions.contains(session))
+		    synchronized (activeSessions) {
+			if (activeSessions.contains(session)) {
+			    activeSessions.remove(session);
+			    logger.WARN.log("DISABLING %1$s...", session);
+			}
 		    }
-		}
 	    }
 	}
     }
