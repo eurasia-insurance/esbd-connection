@@ -11,7 +11,6 @@
 		<property name="esbd.timeout.connect.milis" value="3000" />
 		<property name="esbd.timeout.request.milis" value="5000" />
 
-		<property name="esbd.wsdl-location.0" value="https://web.mkb.kz/IICWebService.asmx?wsdl" />
 		<property name="esbd.wsdl-location.1" value="https://web1.mkb.kz/IICWebService.asmx?wsdl" />
 		<property name="esbd.wsdl-location.2" value="https://web2.mkb.kz/IICWebService.asmx?wsdl" />
 		<property name="esbd.wsdl-location.3" value="https://web3.mkb.kz/IICWebService.asmx?wsdl" />
