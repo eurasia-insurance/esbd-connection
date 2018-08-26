@@ -2,10 +2,11 @@ package tech.lapsa.esbd.connection.beans;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -29,10 +30,8 @@ public class ConnectionPoolBean implements ConnectionPool {
     private static final String PROPERTY_REQUEST_TIMEOUT_MILIS = "esbd.timeout.request.milis";
     private static final String PROPERTY_PREFXIX_WSDL_LOCATION = "esbd.wsdl-location.";
 
-    private String esbdUserName;
-    private String esbdUserPassword;
-    private int connectTimeoutMilis;
-    private int requestTimeoutMilis;
+    private static final int SESSION_TTL_SECONDS = 10;
+    private static final int SESSION_CHECK_INTERVAL_MINUTE = 2;
 
     private final MyLogger logger = MyLogger.newBuilder() //
 	    .withNameOf(ConnectionPool.class) //
@@ -41,12 +40,15 @@ public class ConnectionPoolBean implements ConnectionPool {
     @Resource(mappedName = JNDI_ESBD_POOL_CONFIGURATION_PROPERTIES)
     private Properties config;
 
+    final LinkedList<SoapSession> activeSessions = new LinkedList<>();
+    final Set<SoapSession> allSessions = new HashSet<>();
+
     @PostConstruct
     public void init() {
-	esbdUserName = config.getProperty(PROPERTY_USER_NAME);
-	esbdUserPassword = config.getProperty(PROPERTY_USER_PASSWORD);
-	connectTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_CONNECT_TIMEOUT_MILIS, "3000"));
-	requestTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_REQUEST_TIMEOUT_MILIS, "5000"));
+	final String esbdUserName = config.getProperty(PROPERTY_USER_NAME);
+	final String esbdUserPassword = config.getProperty(PROPERTY_USER_PASSWORD);
+	final int connectTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_CONNECT_TIMEOUT_MILIS, "3000"));
+	final int requestTimeoutMilis = Integer.parseInt(config.getProperty(PROPERTY_REQUEST_TIMEOUT_MILIS, "5000"));
 
 	for (final Object k : config.keySet()) {
 	    final String key = (String) k;
@@ -56,99 +58,59 @@ public class ConnectionPoolBean implements ConnectionPool {
 		    final URL wsdlLocation = new URL(urlstr);
 		    final SoapSession ss = new SoapSession(wsdlLocation, esbdUserName, esbdUserPassword,
 			    connectTimeoutMilis, requestTimeoutMilis, SESSION_TTL_SECONDS * 1000);
-		    addSession(ss);
+		    logger.FINE.log("CREATED %1$s", ss);
+		    allSessions.add(ss);
 		} catch (final MalformedURLException e) {
 		    logger.SEVERE.log(e, "INVALID ESBD WS URL '%1$s'", urlstr);
 		}
 	    }
-
 	}
-    }
-
-    private static final int SESSION_TTL_SECONDS = 10;
-    private static final int SESSION_CHECK_INTERVAL_MINUTE = 5;
-
-    @Schedule(hour = "*", minute = "*/" + SESSION_CHECK_INTERVAL_MINUTE)
-    // пинговать соединения
-    public void poolCheck() {
-	checkDisabled();
-	checkActive();
+	check();
     }
 
     @Override
     public Connection getConnection() throws ConnectionException {
-	final SoapSession session = getActive();
-	return new ConnectionImpl(session);
-    }
-
-    // PRIVATE
-
-    private final Deque<SoapSession> activeSessions = new ConcurrentLinkedDeque<>();
-    private final Deque<SoapSession> disabledSessions = new ConcurrentLinkedDeque<>();
-
-    private void addSession(final SoapSession ss) {
-	checkActive(ss);
-    }
-
-    private void checkActive() {
-	final int size = activeSessions.size();
-	if (size == 0)
-	    return;
-	for (int i = 0; i < size; i++) {
-	    final SoapSession ss = activeSessions.poll();
-	    if (ss == null)
-		continue;
-	    checkActive(ss);
-	}
-    }
-
-    private void checkDisabled() {
-	final int size = disabledSessions.size();
-	if (size == 0)
-	    return;
-	for (int i = 0; i < size; i++) {
-	    final SoapSession ss = disabledSessions.poll();
-	    if (ss == null)
-		continue;
-	    checkDisabled(ss);
-	}
-    }
-
-    private boolean checkActive(final SoapSession ss) {
 	try {
-	    logger.DEBUG.log("REFRESHING %1$s...", ss);
-	    ss.ping();
-	    activeSessions.offer(ss);
-	    logger.DEBUG.log("ALIVE %1$s", ss);
-	    return true;
-	} catch (final ConnectionException ignored) {
-	    disabledSessions.offer(ss);
-	    logger.WARN.log("DISABLED %1$s...", ss);
-	    return false;
-	}
-    }
-
-    private void checkDisabled(final SoapSession ss) {
-	try {
-	    logger.INFO.log("TRYING TO RESTORE %1$s...", ss);
-	    ss.ping();
-	    activeSessions.offer(ss);
-	    logger.INFO.log("RESTORED %1$s", ss);
-	} catch (final ConnectionException ignored) {
-	    disabledSessions.offer(ss);
-	    logger.WARN.log("FAIL TO RESTORE %1$s...", ss);
-	}
-    }
-
-    private SoapSession getActive() throws ConnectionException {
-	try {
-	    while (true) {
-		final SoapSession ss = activeSessions.pop();
-		if (checkActive(ss))
-		    return ss;
+	    SoapSession session;
+	    synchronized (activeSessions) {
+		activeSessions.add(session = activeSessions.remove());
 	    }
-	} catch (final NoSuchElementException e) {
-	    throw new ConnectionException("No ESBD session available");
+	    return new ConnectionImpl(session);
+	} catch (NoSuchElementException e) {
+	    throw new ConnectionException("No ESBD connection available");
+	}
+    }
+
+    @Schedule(hour = "*", minute = "*/" + SESSION_CHECK_INTERVAL_MINUTE)
+    public void check() {
+	for (SoapSession session : allSessions) {
+	    logger.INFO.log("CHECKING %1$s...", session);
+	    try {
+		session.ping();
+		if (!activeSessions.contains(session))
+		    synchronized (activeSessions) {
+			if (!activeSessions.contains(session)) {
+			    activeSessions.add(session);
+			    logger.INFO.log("ENABLING %1$s", session);
+			}
+		    }
+	    } catch (Exception e) {
+		logger.FINE.log(e);
+		if (activeSessions.contains(session))
+		    synchronized (activeSessions) {
+			if (activeSessions.contains(session)) {
+			    activeSessions.remove(session);
+			    logger.WARN.log("DISABLING %1$s...", session);
+			}
+		    }
+	    }
+	}
+    }
+
+    @Schedule(hour = "*", minute = "*", second = "*/30") // dump every 30 second
+    public void logStatus() {
+	for (SoapSession session : allSessions) {
+	    logger.FINE.log("STATE %1$s %2$s", activeSessions.contains(session) ? "ENABLED" : "DISABLED", session);
 	}
     }
 }

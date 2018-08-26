@@ -39,6 +39,51 @@ final class SoapSession {
     private SessionId sessionId;
 
     @Override
+    public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((wsdlLocation == null) ? 0 : wsdlLocation.toString().hashCode());
+	result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+	result = prime * result + ((password == null) ? 0 : password.hashCode());
+	return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (!(obj instanceof SoapSession))
+	    return false;
+
+	final SoapSession other = (SoapSession) obj;
+
+	// wsdlLocation
+	if (wsdlLocation == null) {
+	    if (other.wsdlLocation != null)
+		return false;
+	} else if (!wsdlLocation.equals(other.wsdlLocation))
+	    return false;
+
+	// userName
+	if (userName == null) {
+	    if (other.userName != null)
+		return false;
+	} else if (!userName.equals(other.userName))
+	    return false;
+
+	// password
+	if (password == null) {
+	    if (other.password != null)
+		return false;
+	} else if (!password.equals(other.password))
+	    return false;
+
+	return true;
+    }
+
+    @Override
     public String toString() {
 	return wsdlLocation.toString();
     }
@@ -54,8 +99,8 @@ final class SoapSession {
 	this.password = password;
 	this.connectTimeoutMilis = connectTimeoutMilis;
 	this.requestTimeoutMilis = requestTimeoutMilis;
-	marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
-	logger = MyLogger.newBuilder() //
+	this.marker = new InstantMarker(reCheckEsbdSesionAliveTimeoutMilis);
+	this.logger = MyLogger.newBuilder() //
 		.withNameOf(ConnectionPool.class) //
 		.addPrefix(MyStrings.format("* %1$s * ", wsdlLocation.toString()))
 		.build();
