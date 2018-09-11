@@ -71,7 +71,7 @@ public class ConnectionPoolBean implements ConnectionPool {
     @Override
     public Connection getConnection() throws ConnectionException {
 	try {
-	    SoapSession session;
+	    final SoapSession session;
 	    synchronized (activeSessions) {
 		activeSessions.add(session = activeSessions.remove());
 	    }
@@ -83,7 +83,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 
     @Schedule(hour = "*", minute = "*/" + SESSION_CHECK_INTERVAL_MINUTE)
     public void check() {
-	for (SoapSession session : allSessions) {
+	for (final SoapSession session : allSessions) {
 	    logger.INFO.log("CHECKING %1$s...", session);
 	    try {
 		session.ping();
@@ -109,7 +109,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 
     @Schedule(hour = "*", minute = "*", second = "*/30") // dump every 30 second
     public void logStatus() {
-	for (SoapSession session : allSessions) {
+	for (final SoapSession session : allSessions) {
 	    logger.FINE.log("STATE %1$s %2$s", activeSessions.contains(session) ? "ENABLED" : "DISABLED", session);
 	}
     }
