@@ -58,10 +58,10 @@ public class ConnectionPoolBean implements ConnectionPool {
 		    final URL wsdlLocation = new URL(urlstr);
 		    final SoapSession ss = new SoapSession(wsdlLocation, esbdUserName, esbdUserPassword,
 			    connectTimeoutMilis, requestTimeoutMilis, SESSION_TTL_SECONDS * 1000);
-		    logger.FINE.log("CREATED %1$s", ss);
+		    logger.DEBUG.log("CREATED %1$s", ss);
 		    allSessions.add(ss);
 		} catch (final MalformedURLException e) {
-		    logger.SEVERE.log(e, "INVALID ESBD WS URL '%1$s'", urlstr);
+		    logger.ERROR.log(e, "INVALID ESBD WS URL '%1$s'", urlstr);
 		}
 	    }
 	}
@@ -95,7 +95,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 			}
 		    }
 	    } catch (Exception e) {
-		logger.FINE.log(e);
+		logger.DEBUG.log(e);
 		if (activeSessions.contains(session))
 		    synchronized (activeSessions) {
 			if (activeSessions.contains(session)) {
@@ -109,8 +109,9 @@ public class ConnectionPoolBean implements ConnectionPool {
 
     @Schedule(hour = "*", minute = "*", second = "*/30") // dump every 30 second
     public void logStatus() {
-	for (SoapSession session : allSessions) {
-	    logger.FINE.log("STATE %1$s %2$s", activeSessions.contains(session) ? "ENABLED" : "DISABLED", session);
-	}
+	if (!logger.DEBUG.isLoggable())
+	    return;
+	for (SoapSession session : allSessions)
+	    logger.DEBUG.log("STATE %1$s %2$s", activeSessions.contains(session) ? "ENABLED" : "DISABLED", session);
     }
 }
