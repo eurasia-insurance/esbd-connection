@@ -163,7 +163,7 @@ final class SoapSession {
 	} catch (final SOAPFaultException e) {
 	    marker.mark(); // call is ok also session is ok too
 	    logger.TRACE.log(e);
-	    return 0;
+	    return defaultReturn;
 	} catch (final RuntimeException e) {
 	    marker.expire(); // call is not ok
 	    logger.WARN.log(e);
