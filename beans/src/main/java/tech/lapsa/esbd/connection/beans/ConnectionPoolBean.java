@@ -71,7 +71,7 @@ public class ConnectionPoolBean implements ConnectionPool {
     @Override
     public Connection getConnection() throws ConnectionException {
 	try {
-	    SoapSession session;
+	    final SoapSession session;
 	    synchronized (activeSessions) {
 		activeSessions.add(session = activeSessions.remove());
 	    }
