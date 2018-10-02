@@ -65,7 +65,7 @@ public class ConnectionPoolBean implements ConnectionPool {
 		}
 	    }
 	}
-	check();
+	updatePool();
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ConnectionPoolBean implements ConnectionPool {
     }
 
     @Schedule(hour = "*", minute = "*/" + SESSION_CHECK_INTERVAL_MINUTE)
-    public void check() {
+    public void updatePool() {
 	for (SoapSession session : allSessions) {
 	    logger.INFO.log("CHECKING %1$s...", session);
 	    try {
