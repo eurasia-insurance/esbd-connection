@@ -9,7 +9,7 @@
 
 	<groupId>tech.lapsa.esbd</groupId>
 	<artifactId>esbd-connection-root</artifactId>
-	<version>1.3.3</version>
+	<version>CURRENT-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>ESBD Lib : Connection</name>
@@ -21,11 +21,11 @@
 
 	<properties>
 		<!-- BOMS -->
-		<javax-javaee-bom.version>7.0a</javax-javaee-bom.version>
-		<java-commons.version>1.2</java-commons.version>
+		<javax-javaee-bom.version>CURRENT-SNAPSHOT</javax-javaee-bom.version>
+		<java-commons.version>CURRENT-SNAPSHOT</java-commons.version>
 		<!-- tech -->
-		<esbd-jaxws-client.version>4.3</esbd-jaxws-client.version>
-		<lapsa-arquillian-test.version>1.1</lapsa-arquillian-test.version>
+		<esbd-jaxws-client.version>CURRENT-SNAPSHOT</esbd-jaxws-client.version>
+		<lapsa-arquillian-test.version>CURRENT-SNAPSHOT</lapsa-arquillian-test.version>
 		<!-- ASB -->
 		<asb.keystore.path>${env.ASB_PATH}</asb.keystore.path>
 	</properties>
