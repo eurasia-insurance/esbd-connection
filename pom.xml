@@ -9,7 +9,7 @@
 
 	<groupId>tech.lapsa.esbd</groupId>
 	<artifactId>esbd-connection-root</artifactId>
-	<version>CURRENT-SNAPSHOT</version>
+	<version>20190103</version>
 	<packaging>pom</packaging>
 
 	<name>ESBD Lib : Connection</name>
@@ -76,7 +76,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/eurasia-insurance/esbd-connection.git</connection>
 		<developerConnection>scm:git:https://github.com/eurasia-insurance/esbd-connection.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v20190103</tag>
 	</scm>
 
 </project>
