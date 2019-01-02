@@ -89,11 +89,14 @@ import tech.lapsa.esbd.jaxws.wsimport.NewUserRequest;
 import tech.lapsa.esbd.jaxws.wsimport.Policy;
 import tech.lapsa.esbd.jaxws.wsimport.REQUEST;
 import tech.lapsa.esbd.jaxws.wsimport.TF;
+import tech.lapsa.esbd.jaxws.wsimport.User;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL;
 import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
 
 public interface Connection extends AutoCloseable {
+
+    User currentUser();
 
     @Override
     void close() throws ConnectionException;
@@ -133,7 +136,7 @@ public interface Connection extends AutoCloseable {
      * Выполнение метода ЕСБД
      *
      * @param aRequest
-     * @return returns com.lapsa.esbd.jaxws.client.EsbdResponse
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.EsbdResponse
      */
     public EsbdResponse execute(EsbdRequest aRequest);
 
@@ -159,7 +162,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка клиентов по идентификатору
      *
      * @param aID
-     * @return returns com.lapsa.esbd.jaxws.client.Client
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Client
      */
     public Client getClientByID(int aID);
 
@@ -167,7 +170,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка реквизитов ИП/КХ по идентификатору клиента
      *
      * @param aClientID
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCLIENTPBDETAILS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTPBDETAILS
      */
     public ArrayOfCLIENTPBDETAILS getClientPBDetailsListByID(int aClientID);
 
@@ -175,7 +178,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка клиентов по ключевым полям
      *
      * @param aClient
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfClient
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfClient
      */
     public ArrayOfClient getClientsByKeyFields(Client aClient);
 
@@ -183,7 +186,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка клиентов по РНН
      *
      * @param aTPRN
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfClient
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfClient
      */
     public ArrayOfClient getClientsByRNN(String aTPRN);
 
@@ -193,7 +196,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aContractDate
      * @return returns
-     *         com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTAGRICULTURELIST
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTAGRICULTURELIST
      */
     public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByContractDate(String aContractDate);
 
@@ -202,7 +205,7 @@ public interface Connection extends AutoCloseable {
      * растениеводстве
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTAGRICULTURELIST
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTAGRICULTURELIST
      */
     public CONTRACTAGRICULTURELIST getContractAgricultureById(int aCONTRACTID);
 
@@ -212,7 +215,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aContractNumber
      * @return returns
-     *         com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTAGRICULTURELIST
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTAGRICULTURELIST
      */
     public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByNumber(String aContractNumber);
 
@@ -223,7 +226,7 @@ public interface Connection extends AutoCloseable {
      * @param aDateBeg
      * @param aDateEnd
      * @return returns
-     *         com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTAGRICULTURELIST
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTAGRICULTURELIST
      */
     public ArrayOfCONTRACTAGRICULTURELIST getContractAgricultureByPeriod(String aDateBeg, String aDateEnd);
 
@@ -234,7 +237,7 @@ public interface Connection extends AutoCloseable {
      * @param aApproveDate
      * @param aRescindingDate
      * @param aInsuranceTypeID
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfString
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfString
      */
     public ArrayOfString getContractByAppRescDate(int aInsuranceTypeID, String aApproveDate, String aRescindingDate);
 
@@ -243,7 +246,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSACCIDENT
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSACCIDENT
      */
     public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByContractDate(String aContractDate);
 
@@ -251,7 +254,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Страхование от несчастных случаев
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSACCIDENT
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSACCIDENT
      */
     public CONTRACTDSACCIDENT getContractDsAccidentById(int aCONTRACTID);
 
@@ -260,7 +263,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSACCIDENT
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSACCIDENT
      */
     public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByNumber(String aContractNumber);
 
@@ -270,7 +273,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSACCIDENT
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSACCIDENT
      */
     public ArrayOfCONTRACTDSACCIDENT getContractDsAccidentByPeriod(String aDateBeg, String aDateEnd);
 
@@ -278,7 +281,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС воздушного транспорта по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAIR
      */
     public ArrayOfCONTRACTDSAIR getContractDsAirByContractDate(String aContractDate);
 
@@ -286,7 +289,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС воздушного транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSAIR
      */
     public CONTRACTDSAIR getContractDsAirById(int aCONTRACTID);
 
@@ -294,7 +297,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС воздушного транспорта по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAIR
      */
     public ArrayOfCONTRACTDSAIR getContractDsAirByNumber(String aContractNumber);
 
@@ -304,7 +307,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAIR
      */
     public ArrayOfCONTRACTDSAIR getContractDsAirByPeriod(String aDateBeg, String aDateEnd);
 
@@ -312,7 +315,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Аннутитное страхование по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSANNUITY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSANNUITY
      */
     public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByContractDate(String aContractDate);
 
@@ -320,7 +323,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Аннутитное страхование
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSANNUITY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSANNUITY
      */
     public CONTRACTDSANNUITY getContractDsAnnuityById(int aCONTRACTID);
 
@@ -328,7 +331,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Аннутитное страхование по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSANNUITY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSANNUITY
      */
     public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByNumber(String aContractNumber);
 
@@ -338,7 +341,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSANNUITY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSANNUITY
      */
     public ArrayOfCONTRACTDSANNUITY getContractDsAnnuityByPeriod(String aDateBeg, String aDateEnd);
 
@@ -347,7 +350,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAUTO
      */
     public ArrayOfCONTRACTDSAUTO getContractDsAutoByContractDate(String aContractDate);
 
@@ -355,7 +358,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС автомобильного транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSAUTO
      */
     public CONTRACTDSAUTO getContractDsAutoById(int aCONTRACTID);
 
@@ -364,7 +367,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAUTO
      */
     public ArrayOfCONTRACTDSAUTO getContractDsAutoByNumber(String aContractNumber);
 
@@ -374,7 +377,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAUTO
      */
     public ArrayOfCONTRACTDSAUTO getContractDsAutoByPeriod(String aDateBeg, String aDateEnd);
 
@@ -382,7 +385,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС грузов по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSCARGO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSCARGO
      */
     public ArrayOfCONTRACTDSCARGO getContractDsCargoByContractDate(String aContractDate);
 
@@ -390,7 +393,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС грузов
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSCARGO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSCARGO
      */
     public CONTRACTDSCARGO getContractDsCargoById(int aCONTRACTID);
 
@@ -398,7 +401,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС грузов по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSCARGO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSCARGO
      */
     public ArrayOfCONTRACTDSCARGO getContractDsCargoByNumber(String aContractNumber);
 
@@ -407,7 +410,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSCARGO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSCARGO
      */
     public ArrayOfCONTRACTDSCARGO getContractDsCargoByPeriod(String aDateBeg, String aDateEnd);
 
@@ -416,7 +419,7 @@ public interface Connection extends AutoCloseable {
      * дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAIR
      */
     public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByContractDate(String aContractDate);
 
@@ -425,7 +428,7 @@ public interface Connection extends AutoCloseable {
      * транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOAIR
      */
     public CONTRACTDSGPOAIR getContractDsGpoAirById(int aCONTRACTID);
 
@@ -434,7 +437,7 @@ public interface Connection extends AutoCloseable {
      * номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAIR
      */
     public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByNumber(String aContractNumber);
 
@@ -444,7 +447,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAIR
      */
     public ArrayOfCONTRACTDSGPOAIR getContractDsGpoAirByPeriod(String aDateBeg, String aDateEnd);
 
@@ -453,7 +456,7 @@ public interface Connection extends AutoCloseable {
      * дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAUTO
      */
     public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByContractDate(String aContractDate);
 
@@ -462,7 +465,7 @@ public interface Connection extends AutoCloseable {
      * транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOAUTO
      */
     public CONTRACTDSGPOAUTO getContractDsGpoAutoById(int aCONTRACTID);
 
@@ -471,7 +474,7 @@ public interface Connection extends AutoCloseable {
      * номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAUTO
      */
     public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByNumber(String aContractNumber);
 
@@ -481,7 +484,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAUTO
      */
     public ArrayOfCONTRACTDSGPOAUTO getContractDsGpoAutoByPeriod(String aDateBeg, String aDateEnd);
 
@@ -489,7 +492,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС ГПО (другое) по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOOTHER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOOTHER
      */
     public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByContractDate(String aContractDate);
 
@@ -497,7 +500,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС ГПО (другое)
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOOTHER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOOTHER
      */
     public CONTRACTDSGPOOTHER getContractDsGpoOtherById(int aCONTRACTID);
 
@@ -505,7 +508,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС ГПО (другое) по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOOTHER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOOTHER
      */
     public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByNumber(String aContractNumber);
 
@@ -514,7 +517,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOOTHER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOOTHER
      */
     public ArrayOfCONTRACTDSGPOOTHER getContractDsGpoOtherByPeriod(String aDateBeg, String aDateEnd);
 
@@ -523,7 +526,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOWATER
      */
     public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByContractDate(String aContractDate);
 
@@ -531,7 +534,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС ГПО владельцев водного транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOWATER
      */
     public CONTRACTDSGPOWATER getContractDsGpoWaterById(int aCONTRACTID);
 
@@ -540,7 +543,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOWATER
      */
     public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByNumber(String aContractNumber);
 
@@ -550,7 +553,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGPOWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOWATER
      */
     public ArrayOfCONTRACTDSGPOWATER getContractDsGpoWaterByPeriod(String aDateBeg, String aDateEnd);
 
@@ -558,7 +561,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС гарантий и поручительств по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGUARANTEE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGUARANTEE
      */
     public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByContractDate(String aContractDate);
 
@@ -566,7 +569,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС гарантий и поручительств
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGUARANTEE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGUARANTEE
      */
     public CONTRACTDSGUARANTEE getContractDsGuaranteeById(int aCONTRACTID);
 
@@ -574,7 +577,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС гарантий и поручительств по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGUARANTEE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGUARANTEE
      */
     public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByNumber(String aContractNumber);
 
@@ -584,7 +587,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSGUARANTEE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGUARANTEE
      */
     public ArrayOfCONTRACTDSGUARANTEE getContractDsGuaranteeByPeriod(String aDateBeg, String aDateEnd);
 
@@ -593,7 +596,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSHEALTH
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSHEALTH
      */
     public ArrayOfCONTRACTDSHEALTH getContractDsHealthByContractDate(String aContractDate);
 
@@ -601,7 +604,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Страхования на случай болезни
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSHEALTH
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSHEALTH
      */
     public CONTRACTDSHEALTH getContractDsHealthById(int aCONTRACTID);
 
@@ -610,7 +613,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSHEALTH
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSHEALTH
      */
     public ArrayOfCONTRACTDSHEALTH getContractDsHealthByNumber(String aContractNumber);
 
@@ -620,7 +623,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSHEALTH
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSHEALTH
      */
     public ArrayOfCONTRACTDSHEALTH getContractDsHealthByPeriod(String aDateBeg, String aDateEnd);
 
@@ -628,7 +631,8 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС судебных расходов по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLEGALCOSTS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLEGALCOSTS
      */
     public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByContractDate(String aContractDate);
 
@@ -636,7 +640,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС судебных расходов
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLEGALCOSTS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLEGALCOSTS
      */
     public CONTRACTDSLEGALCOSTS getContractDsLegalCostsById(int aCONTRACTID);
 
@@ -644,7 +648,8 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС судебных расходов по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLEGALCOSTS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLEGALCOSTS
      */
     public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByNumber(String aContractNumber);
 
@@ -653,7 +658,8 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLEGALCOSTS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLEGALCOSTS
      */
     public ArrayOfCONTRACTDSLEGALCOSTS getContractDsLegalCostsByPeriod(String aDateBeg, String aDateEnd);
 
@@ -661,7 +667,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Страхование жизни по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLIFE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLIFE
      */
     public ArrayOfCONTRACTDSLIFE getContractDsLifeByContractDate(String aContractDate);
 
@@ -669,7 +675,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Страхование жизни
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLIFE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLIFE
      */
     public CONTRACTDSLIFE getContractDsLifeById(int aCONTRACTID);
 
@@ -677,7 +683,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Страхование жизни по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLIFE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLIFE
      */
     public ArrayOfCONTRACTDSLIFE getContractDsLifeByNumber(String aContractNumber);
 
@@ -687,7 +693,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLIFE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLIFE
      */
     public ArrayOfCONTRACTDSLIFE getContractDsLifeByPeriod(String aDateBeg, String aDateEnd);
 
@@ -695,7 +701,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Страхование займов по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLOAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOAN
      */
     public ArrayOfCONTRACTDSLOAN getContractDsLoanByContractDate(String aContractDate);
 
@@ -703,7 +709,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Страхование займов
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLOAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLOAN
      */
     public CONTRACTDSLOAN getContractDsLoanById(int aCONTRACTID);
 
@@ -711,7 +717,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Страхование займов по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLOAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOAN
      */
     public ArrayOfCONTRACTDSLOAN getContractDsLoanByNumber(String aContractNumber);
 
@@ -720,7 +726,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLOAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOAN
      */
     public ArrayOfCONTRACTDSLOAN getContractDsLoanByPeriod(String aDateBeg, String aDateEnd);
 
@@ -729,7 +735,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOSSES
      */
     public ArrayOfCONTRACTDSLOSSES getContractDsLossesByContractDate(String aContractDate);
 
@@ -737,7 +743,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС убытков финансовых организаций
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLOSSES
      */
     public CONTRACTDSLOSSES getContractDsLossesById(int aCONTRACTID);
 
@@ -746,7 +752,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOSSES
      */
     public ArrayOfCONTRACTDSLOSSES getContractDsLossesByNumber(String aContractNumber);
 
@@ -756,7 +762,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOSSES
      */
     public ArrayOfCONTRACTDSLOSSES getContractDsLossesByPeriod(String aDateBeg, String aDateEnd);
 
@@ -764,7 +770,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Ипотечное страхование по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSMORTGAGE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSMORTGAGE
      */
     public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByContractDate(String aContractDate);
 
@@ -772,7 +778,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Ипотечное страхование
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSMORTGAGE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSMORTGAGE
      */
     public CONTRACTDSMORTGAGE getContractDsMortgageById(int aCONTRACTID);
 
@@ -780,7 +786,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Ипотечное страхование по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSMORTGAGE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSMORTGAGE
      */
     public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByNumber(String aContractNumber);
 
@@ -790,7 +796,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSMORTGAGE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSMORTGAGE
      */
     public ArrayOfCONTRACTDSMORTGAGE getContractDsMortgageByPeriod(String aDateBeg, String aDateEnd);
 
@@ -799,7 +805,8 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSOTHERLOSSES
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSOTHERLOSSES
      */
     public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByContractDate(String aContractDate);
 
@@ -807,7 +814,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС от прочих финансовых убытков
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSOTHERLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSOTHERLOSSES
      */
     public CONTRACTDSOTHERLOSSES getContractDsOtherLossesById(int aCONTRACTID);
 
@@ -816,7 +823,8 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSOTHERLOSSES
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSOTHERLOSSES
      */
     public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByNumber(String aContractNumber);
 
@@ -826,7 +834,8 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSOTHERLOSSES
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSOTHERLOSSES
      */
     public ArrayOfCONTRACTDSOTHERLOSSES getContractDsOtherLossesByPeriod(String aDateBeg, String aDateEnd);
 
@@ -834,7 +843,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС имущества от ущерба по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSPROPERTY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSPROPERTY
      */
     public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByContractDate(String aContractDate);
 
@@ -842,7 +851,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС имущества от ущерба
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSPROPERTY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSPROPERTY
      */
     public CONTRACTDSPROPERTY getContractDsPropertyById(int aCONTRACTID);
 
@@ -850,7 +859,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС имущества от ущерба по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSPROPERTY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSPROPERTY
      */
     public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByNumber(String aContractNumber);
 
@@ -860,7 +869,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSPROPERTY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSPROPERTY
      */
     public ArrayOfCONTRACTDSPROPERTY getContractDsPropertyByPeriod(String aDateBeg, String aDateEnd);
 
@@ -869,7 +878,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSRAILWAYS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSRAILWAYS
      */
     public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByContractDate(String aContractDate);
 
@@ -877,7 +886,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС железнодорожного транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSRAILWAYS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSRAILWAYS
      */
     public CONTRACTDSRAILWAYS getContractDsRailwaysById(int aCONTRACTID);
 
@@ -886,7 +895,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSRAILWAYS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSRAILWAYS
      */
     public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByNumber(String aContractNumber);
 
@@ -896,7 +905,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSRAILWAYS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSRAILWAYS
      */
     public ArrayOfCONTRACTDSRAILWAYS getContractDsRailwaysByPeriod(String aDateBeg, String aDateEnd);
 
@@ -904,7 +913,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Титульного страхования по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSTITLE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSTITLE
      */
     public ArrayOfCONTRACTDSTITLE getContractDsTitleByContractDate(String aContractDate);
 
@@ -912,7 +921,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора Титульного страхования
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSTITLE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSTITLE
      */
     public CONTRACTDSTITLE getContractDsTitleById(int aCONTRACTID);
 
@@ -920,7 +929,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров Титульного страхования по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSTITLE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSTITLE
      */
     public ArrayOfCONTRACTDSTITLE getContractDsTitleByNumber(String aContractNumber);
 
@@ -930,7 +939,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSTITLE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSTITLE
      */
     public ArrayOfCONTRACTDSTITLE getContractDsTitleByPeriod(String aDateBeg, String aDateEnd);
 
@@ -938,7 +947,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС водного транспорта по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSWATER
      */
     public ArrayOfCONTRACTDSWATER getContractDsWaterByContractDate(String aContractDate);
 
@@ -946,7 +955,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ДС водного транспорта
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSWATER
      */
     public CONTRACTDSWATER getContractDsWaterById(int aCONTRACTID);
 
@@ -954,7 +963,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ДС водного транспорта по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSWATER
      */
     public ArrayOfCONTRACTDSWATER getContractDsWaterByNumber(String aContractNumber);
 
@@ -964,7 +973,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTDSWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSWATER
      */
     public ArrayOfCONTRACTDSWATER getContractDsWaterByPeriod(String aDateBeg, String aDateEnd);
 
@@ -973,7 +982,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSECO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSECO
      */
     public ArrayOfCONTRACTOSECO getContractOsEcoByContractDate(String aContractDate);
 
@@ -982,7 +991,7 @@ public interface Connection extends AutoCloseable {
      * страхование
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSECO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSECO
      */
     public CONTRACTOSECO getContractOsEcoById(int aCONTRACTID);
 
@@ -991,7 +1000,7 @@ public interface Connection extends AutoCloseable {
      * номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSECO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSECO
      */
     public ArrayOfCONTRACTOSECO getContractOsEcoByNumber(String aContractNumber);
 
@@ -1001,7 +1010,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSECO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSECO
      */
     public ArrayOfCONTRACTOSECO getContractOsEcoByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1010,7 +1019,8 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOAUDITORS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOAUDITORS
      */
     public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByContractDate(String aContractDate);
 
@@ -1018,7 +1028,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ОС ГПО аудиторских организаций
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPOAUDITORS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOAUDITORS
      */
     public CONTRACTOSGPOAUDITORS getContractOsgpoAuditorsById(int aCONTRACTID);
 
@@ -1027,7 +1037,8 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOAUDITORS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOAUDITORS
      */
     public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByNumber(String aContractNumber);
 
@@ -1037,7 +1048,8 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOAUDITORS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOAUDITORS
      */
     public ArrayOfCONTRACTOSGPOAUDITORS getContractOsgpoAuditorsByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1046,7 +1058,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPODO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPODO
      */
     public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByContractDate(String aContractDate);
 
@@ -1054,7 +1066,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ОС ГПО владельцев опасных объектов
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPODO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPODO
      */
     public CONTRACTOSGPODO getContractOsgpoDoById(int aCONTRACTID);
 
@@ -1063,7 +1075,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPODO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPODO
      */
     public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByNumber(String aContractNumber);
 
@@ -1073,7 +1085,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPODO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPODO
      */
     public ArrayOfCONTRACTOSGPODO getContractOsgpoDoByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1081,7 +1093,8 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ОС ГПО частных нотариусов по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPONOTARIUS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPONOTARIUS
      */
     public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByContractDate(String aContractDate);
 
@@ -1089,7 +1102,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ОС ГПО частных нотариусов
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPONOTARIUS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPONOTARIUS
      */
     public CONTRACTOSGPONOTARIUS getContractOsgpoNotariusById(int aCONTRACTID);
 
@@ -1097,7 +1110,8 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ОС ГПО частных нотариусов по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPONOTARIUS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPONOTARIUS
      */
     public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByNumber(String aContractNumber);
 
@@ -1107,7 +1121,8 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPONOTARIUS
+     * @return returns
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPONOTARIUS
      */
     public ArrayOfCONTRACTOSGPONOTARIUS getContractOsgpoNotariusByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1116,7 +1131,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aContractDate
      * @return returns
-     *         com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOPASSENGERS
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOPASSENGERS
      */
     public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByContractDate(String aContractDate);
 
@@ -1124,7 +1139,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ОС ГПО перевозчика перед пассажирами
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPOPASSENGERS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOPASSENGERS
      */
     public CONTRACTOSGPOPASSENGERS getContractOsgpoPassengersById(int aCONTRACTID);
 
@@ -1133,7 +1148,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aContractNumber
      * @return returns
-     *         com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOPASSENGERS
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOPASSENGERS
      */
     public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByNumber(String aContractNumber);
 
@@ -1143,7 +1158,7 @@ public interface Connection extends AutoCloseable {
      * @param aDateBeg
      * @param aDateEnd
      * @return returns
-     *         com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOPASSENGERS
+     *         tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOPASSENGERS
      */
     public ArrayOfCONTRACTOSGPOPASSENGERS getContractOsgpoPassengersByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1152,7 +1167,7 @@ public interface Connection extends AutoCloseable {
      * заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOTOUR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOTOUR
      */
     public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByContractDate(String aContractDate);
 
@@ -1160,7 +1175,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ОС ГПО туроператора и турагента
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPOTOUR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOTOUR
      */
     public CONTRACTOSGPOTOUR getContractOsgpoTourById(int aCONTRACTID);
 
@@ -1169,7 +1184,7 @@ public interface Connection extends AutoCloseable {
      * договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOTOUR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOTOUR
      */
     public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByNumber(String aContractNumber);
 
@@ -1179,7 +1194,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSGPOTOUR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOTOUR
      */
     public ArrayOfCONTRACTOSGPOTOUR getContractOsgpoTourByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1187,7 +1202,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ОС РНС по дате заключения
      *
      * @param aContractDate
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSRNS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSRNS
      */
     public ArrayOfCONTRACTOSRNS getContractOSRNSByContractDate(String aContractDate);
 
@@ -1195,7 +1210,7 @@ public interface Connection extends AutoCloseable {
      * Получение по идентификатору договора ОС РНС
      *
      * @param aCONTRACTID
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSRNS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSRNS
      */
     public CONTRACTOSRNS getContractOSRNSById(int aCONTRACTID);
 
@@ -1203,7 +1218,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка договоров ОС РНС по номеру договора
      *
      * @param aContractNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSRNS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSRNS
      */
     public ArrayOfCONTRACTOSRNS getContractOSRNSByNumber(String aContractNumber);
 
@@ -1212,7 +1227,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateBeg
      * @param aDateEnd
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfCONTRACTOSRNS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSRNS
      */
     public ArrayOfCONTRACTOSRNS getContractOSRNSByPeriod(String aDateBeg, String aDateEnd);
 
@@ -1220,7 +1235,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает СС (кроме ОСГПО ВТС) по идентификатору
      *
      * @param aIECOMMONID
-     * @return returns com.lapsa.esbd.jaxws.client.IECOMMON
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.IECOMMON
      */
     public IECOMMON getIECOMMONById(int aIECOMMONID);
 
@@ -1229,7 +1244,7 @@ public interface Connection extends AutoCloseable {
      * заданным параметрам
      *
      * @param aIECOMMON
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfString
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfString
      */
     public ArrayOfString getIECOMMONBYPARAMS(IECOMMON aIECOMMON);
 
@@ -1237,7 +1252,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает Страховые случаи по заданным параметрам
      *
      * @param aInsuranceEvent
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfInsuranceEvent
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfInsuranceEvent
      */
     public ArrayOfInsuranceEvent getInsuranceEvents(InsuranceEvent aInsuranceEvent);
 
@@ -1245,7 +1260,7 @@ public interface Connection extends AutoCloseable {
      * Получение элементов справочника
      *
      * @param aTableName
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfItem
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfItem
      */
     public ArrayOfItem getItems(String aTableName);
 
@@ -1263,7 +1278,7 @@ public interface Connection extends AutoCloseable {
      * @param idEmplType
      * @param idClient
      * @param idProfRisk
-     * @return returns com.lapsa.esbd.jaxws.client.Item
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Item
      */
     public Item getMarkUpFactorXML(int idClient, int idEmplType, int idProfRisk);
 
@@ -1271,7 +1286,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка посредников по реквизитам
      *
      * @param aMiddleman
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfMIDDLEMAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfMIDDLEMAN
      */
     public ArrayOfMIDDLEMAN getMiddlemenByKeyFields(MIDDLEMAN aMiddleman);
 
@@ -1280,7 +1295,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aDateTime1
      * @param aDateTime2
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfMiddlemenPayment
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfMiddlemenPayment
      */
     public ArrayOfMiddlemenPayment getMiddlemenPaymentsByCreatedOrChangedDateTime(String aDateTime1, String aDateTime2);
 
@@ -1298,7 +1313,7 @@ public interface Connection extends AutoCloseable {
      * @param aDateTime1
      * @param aDateTime2
      * @param aBranchId
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfPolicy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfPolicy
      */
     public ArrayOfPolicy getPoliciesByCreatedOrChangedDateTime(int aBranchId, String aDateTime1, String aDateTime2);
 
@@ -1306,7 +1321,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает список полисов ОС ГПО ВТС по номеру полиса
      *
      * @param aPolicyNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfPolicy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfPolicy
      */
     public ArrayOfPolicy getPoliciesByNumber(String aPolicyNumber);
 
@@ -1315,7 +1330,7 @@ public interface Connection extends AutoCloseable {
      *
      * @param aPolicyDate2
      * @param aPolicyDate1
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfPolicy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfPolicy
      */
     public ArrayOfPolicy getPoliciesByPolicyDate(String aPolicyDate1, String aPolicyDate2);
 
@@ -1325,7 +1340,7 @@ public interface Connection extends AutoCloseable {
      * @param aCondition
      * @param aPolicyDate2
      * @param aPolicyDate1
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfItem
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfItem
      */
     public ArrayOfItem getPoliciesInfoByReason(String aCondition, String aPolicyDate1, String aPolicyDate2);
 
@@ -1333,7 +1348,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает полис ОСГПО ВТС по уникальному глобальному идентификатору
      *
      * @param aGlobalID
-     * @return returns com.lapsa.esbd.jaxws.client.Policy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Policy
      */
     public Policy getPolicyByGlobalID(String aGlobalID);
 
@@ -1341,7 +1356,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает полис ОСГПО ВТС по идентификатору
      *
      * @param aPolicyID
-     * @return returns com.lapsa.esbd.jaxws.client.Policy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Policy
      */
     public Policy getPolicyByID(int aPolicyID);
 
@@ -1358,7 +1373,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает информацию о Заявке
      *
      * @param aRequestID
-     * @return returns com.lapsa.esbd.jaxws.client.REQUEST
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.REQUEST
      */
     public REQUEST getREQUESTBYID(int aRequestID);
 
@@ -1373,7 +1388,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка транспортных средств по номеру двигателя
      *
      * @param aEngineNumber
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfTF
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfTF
      */
     public ArrayOfTF getTFByEngineNumber(String aEngineNumber);
 
@@ -1381,7 +1396,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка транспортных средств по ключевым полям
      *
      * @param aTF
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfTF
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfTF
      */
     public ArrayOfTF getTFByKeyFields(TF aTF);
 
@@ -1389,7 +1404,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка транспортных средств по Гос. номеру
      *
      * @param aTFNUMBER
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfTF
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfTF
      */
     public ArrayOfTF getTFByNumber(String aTFNUMBER);
 
@@ -1397,7 +1412,7 @@ public interface Connection extends AutoCloseable {
      * Получение списка транспортных средств по VIN коду
      *
      * @param aVIN
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfTF
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfTF
      */
     public ArrayOfTF getTFByVIN(String aVIN);
 
@@ -1405,7 +1420,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает отчет по классам бонус-малус для юр.лиц
      *
      * @param aClientId
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfTFClasses
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfTFClasses
      */
     public ArrayOfTFClasses getTFClasses(int aClientId);
 
@@ -1415,21 +1430,21 @@ public interface Connection extends AutoCloseable {
      * @param aTableName
      * @param aDateFrom
      * @param aDateTo
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfUnionRecord
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfUnionRecord
      */
     public ArrayOfUnionRecord getUnionRecords(String aTableName, String aDateFrom, String aDateTo);
 
     /**
      * Получить сертификаты пользователя
      *
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfUserCertificate
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfUserCertificate
      */
     public ArrayOfUserCertificate getUserCertificates();
 
     /**
      * Возвращает список пользователей текущей организации
      *
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfUser
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfUser
      */
     public ArrayOfUser getUsers();
 
@@ -1437,7 +1452,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает Пострадавшие объекты по заданным параметрам
      *
      * @param aVictimObject
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfVictimObject
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfVictimObject
      */
     public ArrayOfVictimObject getVictimObjects(VictimObject aVictimObject);
 
@@ -1445,7 +1460,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает список марок транспортных средств
      *
      * @param aSearchParams
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfVOITUREMARK
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfVOITUREMARK
      */
     public ArrayOfVOITUREMARK getVoitureMarks(VOITUREMARK aSearchParams);
 
@@ -1463,7 +1478,7 @@ public interface Connection extends AutoCloseable {
      * Возвращает список моделей автомобилей
      *
      * @param aSearchParams
-     * @return returns com.lapsa.esbd.jaxws.client.ArrayOfVOITUREMODEL
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.ArrayOfVOITUREMODEL
      */
     public ArrayOfVOITUREMODEL getVoitureModels(VOITUREMODEL aSearchParams);
 
@@ -1479,7 +1494,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение клиента
      *
      * @param aClient
-     * @return returns com.lapsa.esbd.jaxws.client.Client
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Client
      */
     public Client setClient(Client aClient);
 
@@ -1487,7 +1502,7 @@ public interface Connection extends AutoCloseable {
      * Добавить рекизиты ИП/КХ для клиента
      *
      * @param aClientPBDetails
-     * @return returns com.lapsa.esbd.jaxws.client.CLIENTPBDETAILS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CLIENTPBDETAILS
      */
     public CLIENTPBDETAILS setClientPBDetails(CLIENTPBDETAILS aClientPBDetails);
 
@@ -1495,7 +1510,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Обязательное страхование в растениеводстве
      *
      * @param aCONTRACTAGRICULTURELIST
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTAGRICULTURELIST
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTAGRICULTURELIST
      */
     public CONTRACTAGRICULTURELIST setContractAgriculture(CONTRACTAGRICULTURELIST aCONTRACTAGRICULTURELIST);
 
@@ -1503,7 +1518,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Страхование от несчастных случаев
      *
      * @param aCONTRACTDSACCIDENT
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSACCIDENT
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSACCIDENT
      */
     public CONTRACTDSACCIDENT setContractDsAccident(CONTRACTDSACCIDENT aCONTRACTDSACCIDENT);
 
@@ -1511,7 +1526,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС воздушного транспорта
      *
      * @param aCONTRACTDSAIR
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSAIR
      */
     public CONTRACTDSAIR setContractDsAir(CONTRACTDSAIR aCONTRACTDSAIR);
 
@@ -1519,7 +1534,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Аннутитное страхование
      *
      * @param aCONTRACTDSANNUITY
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSANNUITY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSANNUITY
      */
     public CONTRACTDSANNUITY setContractDsAnnuity(CONTRACTDSANNUITY aCONTRACTDSANNUITY);
 
@@ -1527,7 +1542,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС автомобильного транспорта
      *
      * @param aCONTRACTDSAUTO
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSAUTO
      */
     public CONTRACTDSAUTO setContractDsAuto(CONTRACTDSAUTO aCONTRACTDSAUTO);
 
@@ -1535,7 +1550,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС грузов
      *
      * @param aCONTRACTDSCARGO
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSCARGO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSCARGO
      */
     public CONTRACTDSCARGO setContractDsCargo(CONTRACTDSCARGO aCONTRACTDSCARGO);
 
@@ -1543,7 +1558,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС ГПО владельцев воздушного транспорта
      *
      * @param aCONTRACTDSGPOAIR
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOAIR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOAIR
      */
     public CONTRACTDSGPOAIR setContractDsGpoAir(CONTRACTDSGPOAIR aCONTRACTDSGPOAIR);
 
@@ -1551,7 +1566,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС ГПО владельцев автомобильного транспорта
      *
      * @param aCONTRACTDSGPOAUTO
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOAUTO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOAUTO
      */
     public CONTRACTDSGPOAUTO setContractDsGpoAuto(CONTRACTDSGPOAUTO aCONTRACTDSGPOAUTO);
 
@@ -1559,7 +1574,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС ГПО (другое)
      *
      * @param aCONTRACTDSGPOOTHER
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOOTHER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOOTHER
      */
     public CONTRACTDSGPOOTHER setContractDsGpoOther(CONTRACTDSGPOOTHER aCONTRACTDSGPOOTHER);
 
@@ -1567,7 +1582,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС ГПО владельцев водного транспорта
      *
      * @param aCONTRACTDSGPOWATER
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGPOWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOWATER
      */
     public CONTRACTDSGPOWATER setContractDsGpoWater(CONTRACTDSGPOWATER aCONTRACTDSGPOWATER);
 
@@ -1575,7 +1590,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС гарантий и поручительств
      *
      * @param aCONTRACTDSGUARANTEE
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSGUARANTEE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGUARANTEE
      */
     public CONTRACTDSGUARANTEE setContractDsGuarantee(CONTRACTDSGUARANTEE aCONTRACTDSGUARANTEE);
 
@@ -1583,7 +1598,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Страхования на случай болезни
      *
      * @param aCONTRACTDSHEALTH
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSHEALTH
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSHEALTH
      */
     public CONTRACTDSHEALTH setContractDsHealth(CONTRACTDSHEALTH aCONTRACTDSHEALTH);
 
@@ -1591,7 +1606,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС судебных расходов
      *
      * @param aCONTRACTDSLEGALCOSTS
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLEGALCOSTS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLEGALCOSTS
      */
     public CONTRACTDSLEGALCOSTS setContractDsLegalCosts(CONTRACTDSLEGALCOSTS aCONTRACTDSLEGALCOSTS);
 
@@ -1599,7 +1614,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Страхование жизни
      *
      * @param aCONTRACTDSLIFE
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLIFE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLIFE
      */
     public CONTRACTDSLIFE setContractDsLife(CONTRACTDSLIFE aCONTRACTDSLIFE);
 
@@ -1607,7 +1622,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Страхование займов
      *
      * @param aCONTRACTDSLOAN
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLOAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLOAN
      */
     public CONTRACTDSLOAN setContractDsLoan(CONTRACTDSLOAN aCONTRACTDSLOAN);
 
@@ -1615,7 +1630,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС убытков финансовых организаций
      *
      * @param aCONTRACTDSLOSSES
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLOSSES
      */
     public CONTRACTDSLOSSES setContractDsLosses(CONTRACTDSLOSSES aCONTRACTDSLOSSES);
 
@@ -1623,7 +1638,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Ипотечное страхование
      *
      * @param aCONTRACTDSMORTGAGE
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSMORTGAGE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSMORTGAGE
      */
     public CONTRACTDSMORTGAGE setContractDsMortgage(CONTRACTDSMORTGAGE aCONTRACTDSMORTGAGE);
 
@@ -1631,7 +1646,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС от прочих финансовых убытков
      *
      * @param aCONTRACTDSOTHERLOSSES
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSOTHERLOSSES
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSOTHERLOSSES
      */
     public CONTRACTDSOTHERLOSSES setContractDsOtherLosses(CONTRACTDSOTHERLOSSES aCONTRACTDSOTHERLOSSES);
 
@@ -1639,7 +1654,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС имущества от ущерба
      *
      * @param aCONTRACTDSPROPERTY
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSPROPERTY
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSPROPERTY
      */
     public CONTRACTDSPROPERTY setContractDsProperty(CONTRACTDSPROPERTY aCONTRACTDSPROPERTY);
 
@@ -1647,7 +1662,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС железнодорожного транспорта
      *
      * @param aCONTRACTDSRAILWAYS
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSRAILWAYS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSRAILWAYS
      */
     public CONTRACTDSRAILWAYS setContractDsRailways(CONTRACTDSRAILWAYS aCONTRACTDSRAILWAYS);
 
@@ -1655,7 +1670,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Титульного страхования
      *
      * @param aCONTRACTDSTITLE
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSTITLE
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSTITLE
      */
     public CONTRACTDSTITLE setContractDsTitle(CONTRACTDSTITLE aCONTRACTDSTITLE);
 
@@ -1663,7 +1678,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ДС водного транспорта
      *
      * @param aCONTRACTDSWATER
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTDSWATER
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSWATER
      */
     public CONTRACTDSWATER setContractDsWater(CONTRACTDSWATER aCONTRACTDSWATER);
 
@@ -1679,7 +1694,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора Обязательное экологическое страхование
      *
      * @param aCONTRACTOSECO
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSECO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSECO
      */
     public CONTRACTOSECO setContractOsEco(CONTRACTOSECO aCONTRACTOSECO);
 
@@ -1687,7 +1702,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ОС ГПО аудиторских организаций
      *
      * @param aCONTRACTOSGPOAUDITORS
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPOAUDITORS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOAUDITORS
      */
     public CONTRACTOSGPOAUDITORS setContractOsgpoAuditors(CONTRACTOSGPOAUDITORS aCONTRACTOSGPOAUDITORS);
 
@@ -1695,7 +1710,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ОС ГПО владельцев опасных объектов
      *
      * @param aCONTRACTOSGPODO
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPODO
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPODO
      */
     public CONTRACTOSGPODO setContractOsgpoDo(CONTRACTOSGPODO aCONTRACTOSGPODO);
 
@@ -1703,7 +1718,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ОС ГПО частных нотариусов
      *
      * @param aCONTRACTOSGPONOTARIUS
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPONOTARIUS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPONOTARIUS
      */
     public CONTRACTOSGPONOTARIUS setContractOsgpoNotarius(CONTRACTOSGPONOTARIUS aCONTRACTOSGPONOTARIUS);
 
@@ -1711,7 +1726,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ОС ГПО перевозчика перед пассажирами
      *
      * @param aCONTRACTOSGPOPASSENGERS
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPOPASSENGERS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOPASSENGERS
      */
     public CONTRACTOSGPOPASSENGERS setContractOsgpoPassengers(CONTRACTOSGPOPASSENGERS aCONTRACTOSGPOPASSENGERS);
 
@@ -1719,7 +1734,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ОС ГПО туроператора и турагента
      *
      * @param aCONTRACTOSGPOTOUR
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSGPOTOUR
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOTOUR
      */
     public CONTRACTOSGPOTOUR setContractOsgpoTour(CONTRACTOSGPOTOUR aCONTRACTOSGPOTOUR);
 
@@ -1727,7 +1742,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение договора ОС РНС
      *
      * @param aCONTRACTOSRNS
-     * @return returns com.lapsa.esbd.jaxws.client.CONTRACTOSRNS
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSRNS
      */
     public CONTRACTOSRNS setContractOSRNS(CONTRACTOSRNS aCONTRACTOSRNS);
 
@@ -1745,7 +1760,7 @@ public interface Connection extends AutoCloseable {
      * Передает информацию о Страховом случае в ЕСБД кроме ОС ГПО ВТС
      *
      * @param aIECOMMON
-     * @return returns com.lapsa.esbd.jaxws.client.IECOMMON
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.IECOMMON
      */
     public IECOMMON setIECOMMON(IECOMMON aIECOMMON);
 
@@ -1753,7 +1768,7 @@ public interface Connection extends AutoCloseable {
      * Передает информацию о Страховом случае в ЕСБД
      *
      * @param aInsuranceEvent
-     * @return returns com.lapsa.esbd.jaxws.client.InsuranceEvent
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.InsuranceEvent
      */
     public InsuranceEvent setInsuranceEvent(InsuranceEvent aInsuranceEvent);
 
@@ -1769,7 +1784,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение посредника в ЕСБД
      *
      * @param aMiddleman
-     * @return returns com.lapsa.esbd.jaxws.client.MIDDLEMAN
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.MIDDLEMAN
      */
     public MIDDLEMAN setMiddleman(MIDDLEMAN aMiddleman);
 
@@ -1777,7 +1792,7 @@ public interface Connection extends AutoCloseable {
      * Добавление или редактирование запроса на создание нового пользователя
      *
      * @param aNewUserRequest
-     * @return returns com.lapsa.esbd.jaxws.client.NewUserRequest
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.NewUserRequest
      */
     public NewUserRequest setNewUserRequest(NewUserRequest aNewUserRequest);
 
@@ -1793,7 +1808,7 @@ public interface Connection extends AutoCloseable {
      * Сохранение полиса ОС ГПО ВТС
      *
      * @param aPolicy
-     * @return returns com.lapsa.esbd.jaxws.client.Policy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Policy
      */
     public Policy setPolicy(Policy aPolicy);
 
@@ -1804,7 +1819,7 @@ public interface Connection extends AutoCloseable {
      * @param aDescription
      * @param aDuplicateDate
      * @param aDuplicateNumber
-     * @return returns com.lapsa.esbd.jaxws.client.Policy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Policy
      */
     public Policy setPolicyDuplicate(int aOriginalPolicyId, String aDuplicateNumber, String aDuplicateDate,
 	    String aDescription);
@@ -1813,7 +1828,7 @@ public interface Connection extends AutoCloseable {
      * Создает дубликат полиса и расторгает оригинальный полис
      *
      * @param aParamsXML
-     * @return returns com.lapsa.esbd.jaxws.client.Policy
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.Policy
      */
     public Policy setPolicyDuplicateXML(String aParamsXML);
 
@@ -1831,7 +1846,7 @@ public interface Connection extends AutoCloseable {
      * Передает информацию о Заявке в ЕСБД
      *
      * @param aREQUEST
-     * @return returns com.lapsa.esbd.jaxws.client.REQUEST
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.REQUEST
      */
     public REQUEST setRequest(REQUEST aREQUEST);
 
@@ -1839,7 +1854,7 @@ public interface Connection extends AutoCloseable {
      * Создание/редактирование ТС
      *
      * @param aTF
-     * @return returns com.lapsa.esbd.jaxws.client.TF
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.TF
      */
     public TF setTF(TF aTF);
 
@@ -1847,7 +1862,7 @@ public interface Connection extends AutoCloseable {
      * Редактирование информации о Пострадавшем объекте в ЕСБД
      *
      * @param aVictimObject
-     * @return returns com.lapsa.esbd.jaxws.client.InsuranceEvent
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.InsuranceEvent
      */
     public InsuranceEvent setVictimObject(VictimObject aVictimObject);
 
@@ -1855,7 +1870,7 @@ public interface Connection extends AutoCloseable {
      * Добавляет новую марку в справочник марок ТС
      *
      * @param aVoitureMark
-     * @return returns com.lapsa.esbd.jaxws.client.VOITUREMARK
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK
      */
     public VOITUREMARK setVoitureMark(VOITUREMARK aVoitureMark);
 
@@ -1863,7 +1878,7 @@ public interface Connection extends AutoCloseable {
      * Добавляет новую модель в справочник Модели ТС
      *
      * @param aVoitureModel
-     * @return returns com.lapsa.esbd.jaxws.client.VOITUREMODEL
+     * @return returns tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL
      */
     public VOITUREMODEL setVoitureModel(VOITUREMODEL aVoitureModel);
 }
