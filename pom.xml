@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>tech.lapsa.maven</groupId>
 		<artifactId>maven-general</artifactId>
-		<version>3.2</version>
+		<version>20190102</version>
 	</parent>
 
 	<groupId>tech.lapsa.esbd</groupId>
@@ -74,14 +74,9 @@
 	</dependencyManagement>
 
 	<scm>
-		<connection>scm:git:https://gitlab.lapsa.tech/lapsa/esbd/connection.git</connection>
-		<developerConnection>scm:git:https://gitlab.lapsa.tech/lapsa/esbd/connection.git</developerConnection>
+		<connection>scm:git:https://github.com/eurasia-insurance/esbd-connection.git</connection>
+		<developerConnection>scm:git:https://github.com/eurasia-insurance/esbd-connection.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
-	<issueManagement>
-		<system>gitlab</system>
-		<url>https://gitlab.lapsa.tech/lapsa/esbd/connection/issues</url>
-	</issueManagement>
 
 </project>
