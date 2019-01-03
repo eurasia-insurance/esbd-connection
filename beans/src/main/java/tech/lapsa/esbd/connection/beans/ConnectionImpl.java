@@ -96,17 +96,20 @@ import tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL;
 import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
 import tech.lapsa.java.commons.logging.MyLogger;
+import tech.lapsa.java.commons.logging.MyLogger.MyLevel;
 
 final class ConnectionImpl implements Connection {
 
-    private final MyLogger logger = MyLogger.newBuilder() //
+    private final MyLevel logger = MyLogger.newBuilder() //
 	    .withNameOf(Connection.class) //
-	    .build();
+	    .build().TRACE;
+
     private final SoapSession session;
 
     ConnectionImpl(final SoapSession session) {
 	this.session = session;
-	logger.TRACE.log("CONNECTION TAKEN %1$s", session);
+	if (logger.isLoggable())
+	    logger.log("CONNECTION TAKEN %1$s", session);
     }
 
     @Override
@@ -116,7 +119,8 @@ final class ConnectionImpl implements Connection {
 
     @Override
     public void close() throws ConnectionException {
-	logger.TRACE.log("CONNECTION RELEASED %1$s", session);
+	if (logger.isLoggable())
+	    logger.log("CONNECTION RELEASED %1$s", session);
     }
 
     @Override
