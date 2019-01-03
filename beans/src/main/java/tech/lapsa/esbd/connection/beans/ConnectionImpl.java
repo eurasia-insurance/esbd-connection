@@ -91,6 +91,7 @@ import tech.lapsa.esbd.jaxws.wsimport.NewUserRequest;
 import tech.lapsa.esbd.jaxws.wsimport.Policy;
 import tech.lapsa.esbd.jaxws.wsimport.REQUEST;
 import tech.lapsa.esbd.jaxws.wsimport.TF;
+import tech.lapsa.esbd.jaxws.wsimport.User;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK;
 import tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL;
 import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
@@ -109,6 +110,11 @@ final class ConnectionImpl implements Connection {
 	this.session = session;
 	if (logger.isLoggable())
 	    logger.log("CONNECTION TAKEN %1$s", session);
+    }
+
+    @Override
+    public User currentUser() {
+	return session.getUser();
     }
 
     @Override
