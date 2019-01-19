@@ -4,9 +4,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -17,6 +19,8 @@ import javax.ejb.Startup;
 import tech.lapsa.esbd.connection.Connection;
 import tech.lapsa.esbd.connection.ConnectionException;
 import tech.lapsa.esbd.connection.ConnectionPool;
+import tech.lapsa.esbd.connection.ConnectionStatus;
+import tech.lapsa.java.commons.function.MyOptionals;
 import tech.lapsa.java.commons.logging.MyLogger;
 
 @Singleton
@@ -113,5 +117,19 @@ public class ConnectionPoolBean implements ConnectionPool {
 	    return;
 	for (SoapSession session : allSessions)
 	    logger.DEBUG.log("STATE %1$s %2$s", activeSessions.contains(session) ? "ENABLED" : "DISABLED", session);
+    }
+
+    ConnectionStatus getConnectionStatus(SoapSession soapSession) {
+	final String status = activeSessions.contains(soapSession) ? "ENABLED" : "DISABLED";
+	final String lastCheckError = MyOptionals.of(soapSession.getLastCheckException()).map(Exception::getMessage)
+		.orElse("OK");
+	return new ConnectionStatus(status, soapSession.toString(), lastCheckError, soapSession.getLastCheckInstant());
+    }
+
+    @Override
+    public List<ConnectionStatus> getPoolStatus() {
+	return allSessions.stream()
+		.map(this::getConnectionStatus)
+		.collect(Collectors.toList());
     }
 }
