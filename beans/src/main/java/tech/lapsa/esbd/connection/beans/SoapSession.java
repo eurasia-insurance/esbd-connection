@@ -40,6 +40,9 @@ final class SoapSession {
 
     private User user;
 
+    private transient ConnectionException lastCheckException;
+    private transient Instant lastCheckInstant;
+
     @Override
     public int hashCode() {
 	final int prime = 31;
@@ -48,6 +51,14 @@ final class SoapSession {
 	result = prime * result + ((userName == null) ? 0 : userName.hashCode());
 	result = prime * result + ((password == null) ? 0 : password.hashCode());
 	return result;
+    }
+
+    ConnectionException getLastCheckException() {
+        return lastCheckException;
+    }
+
+    Instant getLastCheckInstant() {
+        return lastCheckInstant;
     }
 
     @Override
@@ -175,9 +186,16 @@ final class SoapSession {
     }
 
     public void ping() throws ConnectionException {
-	initService();
-	initSoap();
-	pingOrInitSession();
+	try {
+	    lastCheckInstant = Instant.now();
+	    initService();
+	    initSoap();
+	    pingOrInitSession();
+	    lastCheckException = null;
+	} catch (ConnectionException e) {
+	    lastCheckException = e;
+	    throw e;
+	}
     }
 
     protected User getUser() {
