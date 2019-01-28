@@ -21,11 +21,11 @@
 
 	<properties>
 		<!-- BOMS -->
-		<javax-javaee-bom.version>CURRENT-SNAPSHOT</javax-javaee-bom.version>
-		<java-commons.version>CURRENT-SNAPSHOT</java-commons.version>
+		<javax-javaee-bom.version>20190128r1</javax-javaee-bom.version>
+		<java-commons.version>20190128r1</java-commons.version>
 		<!-- tech -->
-		<esbd-jaxws-client.version>CURRENT-SNAPSHOT</esbd-jaxws-client.version>
-		<lapsa-arquillian-test.version>CURRENT-SNAPSHOT</lapsa-arquillian-test.version>
+		<esbd-jaxws-client.version>20190128r1</esbd-jaxws-client.version>
+		<lapsa-arquillian-test.version>20190128r1</lapsa-arquillian-test.version>
 		<!-- ASB -->
 		<asb.keystore.path>${env.ASB_PATH}</asb.keystore.path>
 	</properties>
