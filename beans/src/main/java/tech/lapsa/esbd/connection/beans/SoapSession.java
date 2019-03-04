@@ -134,6 +134,11 @@ final class SoapSession {
 	int getAsInt(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
     }
 
+    @FunctionalInterface
+    static interface SoapDoubleSupplier {
+	double getAsInt(IICWebServiceSoap soap, String aSession) throws SOAPFaultException;
+    }
+
     <R> R call(final SoapSupplier<R> supplier) {
 	try {
 	    final R res = supplier.get(soap, sessionId.sesionId);
@@ -171,6 +176,23 @@ final class SoapSession {
     int callInt(final SoapIntSupplier consumer, int defaultReturn) {
 	try {
 	    final int res = consumer.getAsInt(soap, sessionId.sesionId);
+	    marker.mark(); // call is ok also session is ok too
+	    return res;
+	} catch (final SOAPFaultException e) {
+	    marker.mark(); // call is ok also session is ok too
+	    logger.TRACE.log(e);
+	    return defaultReturn;
+	} catch (final RuntimeException e) {
+	    marker.expire(); // call is not ok
+	    logger.WARN.log(e);
+	    logger.TRACE.log(e);
+	    throw new EJBException(e.getMessage());
+	}
+    }
+
+    double callDouble(final SoapDoubleSupplier consumer, double defaultReturn) {
+	try {
+	    final double res = consumer.getAsInt(soap, sessionId.sesionId);
 	    marker.mark(); // call is ok also session is ok too
 	    return res;
 	} catch (final SOAPFaultException e) {

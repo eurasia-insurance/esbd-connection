@@ -4,6 +4,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import tech.lapsa.esbd.connection.Connection;
 import tech.lapsa.esbd.connection.ConnectionException;
+import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTDOCUMENTS;
+import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTGROUPS;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTPBDETAILS;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTAGRICULTURELIST;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSACCIDENT;
@@ -34,6 +36,7 @@ import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPONOTARIUS;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOPASSENGERS;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOTOUR;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSRNS;
+import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSTOURIST;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfClient;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfInsuranceEvent;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfItem;
@@ -49,7 +52,10 @@ import tech.lapsa.esbd.jaxws.wsimport.ArrayOfUser;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfUserCertificate;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVOITUREMARK;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVOITUREMODEL;
+import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVehicle;
 import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVictimObject;
+import tech.lapsa.esbd.jaxws.wsimport.CLIENTDOCUMENTS;
+import tech.lapsa.esbd.jaxws.wsimport.CLIENTGROUPS;
 import tech.lapsa.esbd.jaxws.wsimport.CLIENTPBDETAILS;
 import tech.lapsa.esbd.jaxws.wsimport.CONTRACTAGRICULTURELIST;
 import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSACCIDENT;
@@ -80,6 +86,7 @@ import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPONOTARIUS;
 import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOPASSENGERS;
 import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOTOUR;
 import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSRNS;
+import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSTOURIST;
 import tech.lapsa.esbd.jaxws.wsimport.Client;
 import tech.lapsa.esbd.jaxws.wsimport.EsbdRequest;
 import tech.lapsa.esbd.jaxws.wsimport.EsbdResponse;
@@ -141,11 +148,6 @@ final class ConnectionImpl implements Connection {
     @Override
     public void deletePolicy(final int aPolicyID) {
 	session.callVoid((soap, aSessionId) -> soap.deletePolicy(aSessionId, aPolicyID));
-    }
-
-    @Override
-    public EsbdResponse execute(final EsbdRequest aRequest) {
-	return session.call((soap, aSessionId) -> soap.execute(aSessionId, aRequest));
     }
 
     @Override
@@ -872,11 +874,6 @@ final class ConnectionImpl implements Connection {
     }
 
     @Override
-    public XMLGregorianCalendar getServerDateTime() {
-	return session.call((soap, aSessionId) -> soap.getServerDateTime(aSessionId));
-    }
-
-    @Override
     public ArrayOfTF getTFByEngineNumber(final String aEngineNumber) {
 	return session.call((soap, aSessionId) -> soap.getTFByEngineNumber(aSessionId, aEngineNumber));
     }
@@ -905,16 +902,6 @@ final class ConnectionImpl implements Connection {
     public ArrayOfUnionRecord getUnionRecords(final String aTableName, final String aDateFrom,
 	    final String aDateTo) {
 	return session.call((soap, aSessionId) -> soap.getUnionRecords(aSessionId, aTableName, aDateFrom, aDateTo));
-    }
-
-    @Override
-    public ArrayOfUserCertificate getUserCertificates() {
-	return session.call((soap, aSessionId) -> soap.getUserCertificates(aSessionId));
-    }
-
-    @Override
-    public ArrayOfUser getUsers() {
-	return session.call((soap, aSessionId) -> soap.getUsers(aSessionId));
     }
 
     @Override
@@ -1188,5 +1175,96 @@ final class ConnectionImpl implements Connection {
     @Override
     public VOITUREMODEL setVoitureModel(final VOITUREMODEL aVoitureModel) {
 	return session.call((soap, aSessionId) -> soap.setVoitureModel(aSessionId, aVoitureModel));
+    }
+
+    @Override
+    public int calculateContractPremiumDiscount(String aXml) {
+	return session.callInt((soap, aSessionID) -> soap.calculateContractPremiumDiscount(aSessionID, aXml), 0);
+    }
+
+    @Override
+    public ArrayOfCONTRACTOSTOURIST getContractOsTouristByContractDate(String aContractDate) {
+	return session.call((soap, aSessionID) -> soap.getContractOsTouristByContractDate(aSessionID, aContractDate));
+    }
+
+    @Override
+    public String getContractByGlobalID(String aContractGlobalID) {
+	return session.call((soap, aSessionID) -> soap.getContractByGlobalID(aSessionID, aContractGlobalID));
+    }
+
+    @Override
+    public double setPolicyDraft(Policy aPolicy) {
+	return session.callDouble((soap, aSessionID) -> soap.setPolicyDraft(aSessionID, aPolicy), 0d);
+    }
+
+    @Override
+    public ArrayOfCLIENTDOCUMENTS getClientDocumentsListByID(int aClientID) {
+	return session.call((soap, aSessionID) -> soap.getClientDocumentsListByID(aSessionID, aClientID));
+    }
+
+    @Override
+    public ArrayOfCLIENTGROUPS getClientGroupsListByID(int aClientID) {
+	return session.call((soap, aSessionID) -> soap.getClientGroupsListByID(aSessionID, aClientID));
+    }
+
+    @Override
+    public CLIENTDOCUMENTS setClientDocuments(CLIENTDOCUMENTS aClientDocuments) {
+	return session.call((soap, aSessionID) -> soap.setClientDocuments(aSessionID, aClientDocuments));
+    }
+
+    @Override
+    public CLIENTGROUPS setClientGroups(CLIENTGROUPS aClientGroups) {
+	return session.call((soap, aSessionID) -> soap.setClientGroups(aSessionID, aClientGroups));
+    }
+
+    @Override
+    public ArrayOfVehicle searchVehicles(String aVIN, String aTFNUMBER, int aTFID, String aTFREGCERTIF) {
+	return session
+		.call((soap, aSessionID) -> soap.searchVehicles(aSessionID, aVIN, aTFNUMBER, aTFID, aTFREGCERTIF));
+    }
+
+    @Override
+    public ArrayOfUser getUsers() {
+	return session.call((soap, aSessionID) -> soap.getUsers(aSessionID));
+    }
+
+    @Override
+    public XMLGregorianCalendar getServerDateTime() {
+	return session.call((soap, aSessionID) -> soap.getServerDateTime(aSessionID));
+    }
+
+    @Override
+    public int calculatePolicyPremiumDiscount(Policy aPolicy) {
+	return session.callInt((soap, aSessionID) -> soap.calculatePolicyPremiumDiscount(aSessionID, aPolicy), 0);
+    }
+
+    @Override
+    public ArrayOfUserCertificate getUserCertificates() {
+	return session.call((soap, aSessionID) -> soap.getUserCertificates(aSessionID));
+    }
+
+    @Override
+    public CONTRACTOSTOURIST setContractOsTourist(CONTRACTOSTOURIST aCONTRACTOSTOURIST) {
+	return session.call((soap, aSessionID) -> soap.setContractOsTourist(aSessionID, aCONTRACTOSTOURIST));
+    }
+
+    @Override
+    public CONTRACTOSTOURIST getContractOsTouristById(int aCONTRACTID) {
+	return session.call((soap, aSessionID) -> soap.getContractOsTouristById(aSessionID, aCONTRACTID));
+    }
+
+    @Override
+    public ArrayOfCONTRACTOSTOURIST getContractOsTouristByPeriod(String aDateBeg, String aDateEnd) {
+	return session.call((soap, aSessionID) -> soap.getContractOsTouristByPeriod(aSessionID, aDateBeg, aDateEnd));
+    }
+
+    @Override
+    public ArrayOfCONTRACTOSTOURIST getContractOsTouristByNumber(String aContractNumber) {
+	return session.call((soap, aSessionID) -> soap.getContractOsTouristByNumber(aSessionID, aContractNumber));
+    }
+
+    @Override
+    public EsbdResponse execute(EsbdRequest aRequest) {
+	return session.call((soap, aSessionID) -> soap.execute(aSessionID, aRequest));
     }
 }
