@@ -4,104 +4,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import tech.lapsa.esbd.connection.Connection;
 import tech.lapsa.esbd.connection.ConnectionException;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTDOCUMENTS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTGROUPS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCLIENTPBDETAILS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTAGRICULTURELIST;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSACCIDENT;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAIR;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSANNUITY;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSAUTO;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSCARGO;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAIR;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOAUTO;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOOTHER;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGPOWATER;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSGUARANTEE;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSHEALTH;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLEGALCOSTS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLIFE;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOAN;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSLOSSES;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSMORTGAGE;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSOTHERLOSSES;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSPROPERTY;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSRAILWAYS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSTITLE;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTDSWATER;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSECO;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOAUDITORS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPODO;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPONOTARIUS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOPASSENGERS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSGPOTOUR;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSRNS;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfCONTRACTOSTOURIST;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfClient;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfInsuranceEvent;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfItem;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfMIDDLEMAN;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfMiddlemenPayment;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfPolicy;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfSodParameter;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfString;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfTF;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfTFClasses;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfUnionRecord;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfUser;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfUserCertificate;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVOITUREMARK;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVOITUREMODEL;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVehicle;
-import tech.lapsa.esbd.jaxws.wsimport.ArrayOfVictimObject;
-import tech.lapsa.esbd.jaxws.wsimport.CLIENTDOCUMENTS;
-import tech.lapsa.esbd.jaxws.wsimport.CLIENTGROUPS;
-import tech.lapsa.esbd.jaxws.wsimport.CLIENTPBDETAILS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTAGRICULTURELIST;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSACCIDENT;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSAIR;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSANNUITY;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSAUTO;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSCARGO;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOAIR;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOAUTO;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOOTHER;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGPOWATER;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSGUARANTEE;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSHEALTH;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLEGALCOSTS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLIFE;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLOAN;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSLOSSES;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSMORTGAGE;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSOTHERLOSSES;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSPROPERTY;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSRAILWAYS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSTITLE;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTDSWATER;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSECO;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOAUDITORS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPODO;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPONOTARIUS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOPASSENGERS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSGPOTOUR;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSRNS;
-import tech.lapsa.esbd.jaxws.wsimport.CONTRACTOSTOURIST;
-import tech.lapsa.esbd.jaxws.wsimport.Client;
-import tech.lapsa.esbd.jaxws.wsimport.EsbdRequest;
-import tech.lapsa.esbd.jaxws.wsimport.EsbdResponse;
-import tech.lapsa.esbd.jaxws.wsimport.IECOMMON;
-import tech.lapsa.esbd.jaxws.wsimport.InsuranceEvent;
-import tech.lapsa.esbd.jaxws.wsimport.Item;
-import tech.lapsa.esbd.jaxws.wsimport.MIDDLEMAN;
-import tech.lapsa.esbd.jaxws.wsimport.NewUserRequest;
-import tech.lapsa.esbd.jaxws.wsimport.Policy;
-import tech.lapsa.esbd.jaxws.wsimport.REQUEST;
-import tech.lapsa.esbd.jaxws.wsimport.TF;
-import tech.lapsa.esbd.jaxws.wsimport.User;
-import tech.lapsa.esbd.jaxws.wsimport.VOITUREMARK;
-import tech.lapsa.esbd.jaxws.wsimport.VOITUREMODEL;
-import tech.lapsa.esbd.jaxws.wsimport.VictimObject;
+import tech.lapsa.esbd.jaxws.wsimport.*;
 import tech.lapsa.java.commons.logging.MyLogger;
 import tech.lapsa.java.commons.logging.MyLogger.MyLevel;
 
@@ -148,6 +51,11 @@ final class ConnectionImpl implements Connection {
     @Override
     public void deletePolicy(final int aPolicyID) {
 	session.callVoid((soap, aSessionId) -> soap.deletePolicy(aSessionId, aPolicyID));
+    }
+
+    @Override
+    public EsbdResponse execute(EsbdRequest aRequest) {
+	return session.call((soap, aSessionID) -> soap.execute(aSessionID, aRequest));
     }
 
     @Override
@@ -874,6 +782,11 @@ final class ConnectionImpl implements Connection {
     }
 
     @Override
+    public XMLGregorianCalendar getServerDateTime() {
+	return session.call(IICWebServiceSoap::getServerDateTime);
+    }
+
+    @Override
     public ArrayOfTF getTFByEngineNumber(final String aEngineNumber) {
 	return session.call((soap, aSessionId) -> soap.getTFByEngineNumber(aSessionId, aEngineNumber));
     }
@@ -902,6 +815,16 @@ final class ConnectionImpl implements Connection {
     public ArrayOfUnionRecord getUnionRecords(final String aTableName, final String aDateFrom,
 	    final String aDateTo) {
 	return session.call((soap, aSessionId) -> soap.getUnionRecords(aSessionId, aTableName, aDateFrom, aDateTo));
+    }
+
+    @Override
+    public ArrayOfUserCertificate getUserCertificates() {
+	return session.call(IICWebServiceSoap::getUserCertificates);
+    }
+
+    @Override
+    public ArrayOfUser getUsers() {
+	return session.call(IICWebServiceSoap::getUsers);
     }
 
     @Override
@@ -1224,23 +1147,8 @@ final class ConnectionImpl implements Connection {
     }
 
     @Override
-    public ArrayOfUser getUsers() {
-	return session.call((soap, aSessionID) -> soap.getUsers(aSessionID));
-    }
-
-    @Override
-    public XMLGregorianCalendar getServerDateTime() {
-	return session.call((soap, aSessionID) -> soap.getServerDateTime(aSessionID));
-    }
-
-    @Override
     public int calculatePolicyPremiumDiscount(Policy aPolicy) {
 	return session.callInt((soap, aSessionID) -> soap.calculatePolicyPremiumDiscount(aSessionID, aPolicy), 0);
-    }
-
-    @Override
-    public ArrayOfUserCertificate getUserCertificates() {
-	return session.call((soap, aSessionID) -> soap.getUserCertificates(aSessionID));
     }
 
     @Override
@@ -1261,10 +1169,5 @@ final class ConnectionImpl implements Connection {
     @Override
     public ArrayOfCONTRACTOSTOURIST getContractOsTouristByNumber(String aContractNumber) {
 	return session.call((soap, aSessionID) -> soap.getContractOsTouristByNumber(aSessionID, aContractNumber));
-    }
-
-    @Override
-    public EsbdResponse execute(EsbdRequest aRequest) {
-	return session.call((soap, aSessionID) -> soap.execute(aSessionID, aRequest));
     }
 }
